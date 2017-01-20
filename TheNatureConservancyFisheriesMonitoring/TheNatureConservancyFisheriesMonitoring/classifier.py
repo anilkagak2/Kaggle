@@ -4,6 +4,7 @@ from scipy.ndimage import imread
 from scipy.misc import imresize
 from sklearn import svm, metrics
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 import os
 import cv2
 
@@ -15,11 +16,9 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-#newShape = (640, 480)
-#newShape = (60, 40)
-newShape = (30, 20)
+newShape = (60, 40)
 modelName = "model-svc-default.bin"
-predictionsFilename = "predictions-linearSVC_30_x_20.csv"
+predictionsFilename = "predictions-RandomForestClassifier_60_x_40.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
@@ -80,7 +79,8 @@ def GatherTrainTestAndEvaluate(Data_Dir):
 
     # Train the classifier
     #clf = svm.SVC()
-    clf = svm.LinearSVC()
+    #clf = svm.LinearSVC()
+    clf = RandomForestClassifier(n_estimators=500)
     clf.fit(X_train, y_train)
 
     # Predict on the test set and report the metrics
@@ -106,11 +106,11 @@ def GatherTestDataAndPredict(Data_Dir):
     print(X_test)
     clf = loadModel()
     #predictions = clf.predict(X_test)
-    #predictions = clf.predict_proba(X_test)
-    predictions = clf.decision_function(X_test) #clf.predict_proba(X_test)
+    predictions = clf.predict_proba(X_test)
+    #predictions = clf.decision_function(X_test) #clf.predict_proba(X_test)
 
-    from sklearn.preprocessing import normalize
-    predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
+    #from sklearn.preprocessing import normalize
+    #predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
     print(predictions[0])
 
     writePredictionsToCsv(Data_Dir, predictions, filenames)
