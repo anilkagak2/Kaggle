@@ -16,7 +16,11 @@ Insights
 '''
 
 #newShape = (640, 480)
-newShape = (60, 40)
+#newShape = (60, 40)
+newShape = (30, 20)
+modelName = "model-svc-default.bin"
+predictionsFilename = "predictions-linearSVC_30_x_20.csv"
+classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
     global newShape
@@ -24,7 +28,7 @@ def cleanImage(im):
     return im.flatten()
 
 def get_features_and_labels(data_dir):
-    classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+    global classLabels 
     labels = []
     data = []
     for i in range(len(classLabels)):
@@ -42,11 +46,33 @@ def get_features_and_labels(data_dir):
     print(labels.shape)
     print(data[0].shape)
     print(labels[0].shape)
-    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.1, random_state=42)
     return X_train, X_test, y_train, y_test
 
-def saveModel(model, modelName):
-    pickle.dump( model, open( modelName, "wb" ) )
+def get_feature_test_points(data_dir):
+    data = []
+    filenames = []
+    for root, dirs, files in os.walk(data_dir):
+        for name in files:
+            #print((os.path.join(root, name)))
+            data.append( cleanImage( imread(os.path.join(root, name)) ) )
+            filenames.append(name)
+            #break
+    
+    data = np.array(data)
+    return data, filenames
+
+def saveModel(model):
+    global modelName
+    with open( modelName, "wb" ) as fp:
+        pickle.dump( model, fp )
+
+def loadModel():
+    global modelName
+    model = None
+    with open( modelName, "rb" ) as fp:
+        model = pickle.load(fp)
+    return model
 
 def GatherTrainTestAndEvaluate(Data_Dir):
     # Process data into feature and label arrays
@@ -62,7 +88,32 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     print(metrics.classification_report(y_test, predicted))
 
     # Save the classifier
-    saveModel(clf, "model-svc-default.bin")
+    saveModel(clf)
+
+def writePredictionsToCsv(Data_Dir, predictions, filenames):
+    global classLabels
+    global predictionsFilename
+    import csv
+    with open( os.path.join(Data_Dir, predictionsFilename), 'w') as fp:
+        writer = csv.writer(fp, lineterminator='\n')
+        writer.writerow(["image"] + classLabels)
+        for i in range(len(filenames)):
+            writer.writerow([filenames[i]] + [ str(x) for x in predictions[i]])
+
+def GatherTestDataAndPredict(Data_Dir):
+    print("Prediction..")
+    X_test, filenames = get_feature_test_points(os.path.join(Data_Dir, 'test_stg1'))
+    print(X_test)
+    clf = loadModel()
+    #predictions = clf.predict(X_test)
+    #predictions = clf.predict_proba(X_test)
+    predictions = clf.decision_function(X_test) #clf.predict_proba(X_test)
+
+    from sklearn.preprocessing import normalize
+    predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
+    print(predictions[0])
+
+    writePredictionsToCsv(Data_Dir, predictions, filenames)
 
 def experimentOnAnImage(Data_Dir):
     print(Data_Dir)
@@ -96,8 +147,17 @@ def experimentOnAnImage(Data_Dir):
             cv2.waitKey()
             #break
 
+from enum import Enum
+class ClassifierStage(Enum):
+    Train = 1
+    Test = 2
+    TrainTest = 3
+
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 
-    GatherTrainTestAndEvaluate(Data_Dir)
+    Stage = ClassifierStage.TrainTest
+
+    if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : GatherTrainTestAndEvaluate(Data_Dir)
+    if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir)
     #experimentOnAnImage(os.path.join(Data_Dir, 'train'))
