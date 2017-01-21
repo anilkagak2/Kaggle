@@ -21,8 +21,8 @@ import os
 import cv2
 
 
-#newShape = (60, 40)
-newShape = (20, 20)
+newShape = (60, 40)
+#newShape = (20, 20)
 modelName = "model-svc-default.bin"
 predictionsFilename = "predictions-SingleNeuralNet-SGD_60_x_40.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
@@ -402,7 +402,7 @@ def get_features_and_labels(data_dir):
                     labels.append(i)
 
                 cnt += 1
-                if cnt > 100 : break
+                #if cnt > 100 : break
 
     data = np.array(data)
     labels = np.array(labels)
@@ -478,6 +478,6 @@ class ClassifierStage(Enum):
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 
-    Stage = ClassifierStage.Test
+    Stage = ClassifierStage.TrainTest
     if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : sgd_optimization_mnist(dataset=Data_Dir)
     if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir)

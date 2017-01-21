@@ -18,13 +18,36 @@ Insights
 
 newShape = (60, 40)
 modelName = "model-svc-default.bin"
-predictionsFilename = "predictions-RandomForestClassifier_60_x_40.csv"
+predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
     global newShape
     im = imresize(im, newShape)
     return im.flatten()
+
+def translateImage(image, dx, dy):
+    trans_mat = np.float32([[1,0,dx],[0,1,dy]])
+    result = cv2.warpAffine(image, trans_mat, image.shape[:2],flags=cv2.INTER_LINEAR)
+    return result
+
+def rotateImage(image, angle):
+    center = tuple(np.array(image.shape)[:2]/2) 
+    rot_mat = cv2.getRotationMatrix2D(center,angle,1.0)
+    result = cv2.warpAffine(image, rot_mat, image.shape[:2],flags=cv2.INTER_LINEAR)
+    return result
+
+def getImageTransformations(im):
+    images = []
+    #images.append(rotateImage(im, 90))
+    images.append(rotateImage(im, 180))
+    #images.append(rotateImage(im, 270))
+    images.append(translateImage(im, 0,5))
+    images.append(translateImage(im, 5,0))
+    images.append(translateImage(im, 0,-5))
+    images.append(translateImage(im, -5,0))
+    images = [ cleanImage(x) for x in images ]
+    return images
 
 def get_features_and_labels(data_dir):
     global classLabels 
@@ -36,8 +59,13 @@ def get_features_and_labels(data_dir):
         for root, dirs, files in os.walk(os.path.join(data_dir, label)):
             for name in files:
                 #print((os.path.join(root, name)))
-                data.append( cleanImage( imread(os.path.join(root, name)) ) )
+                img = imread(os.path.join(root, name))
+                data.append( cleanImage( img ) )
                 labels.append(i)
+
+                for x in getImageTransformations(img):
+                    data.append(x)
+                    labels.append(i)
 
     data = np.array(data)
     labels = np.array(labels)
@@ -80,7 +108,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     # Train the classifier
     #clf = svm.SVC()
     #clf = svm.LinearSVC()
-    clf = RandomForestClassifier(n_estimators=500)
+    clf = RandomForestClassifier(n_estimators=500, n_jobs=5)
     clf.fit(X_train, y_train)
 
     # Predict on the test set and report the metrics
