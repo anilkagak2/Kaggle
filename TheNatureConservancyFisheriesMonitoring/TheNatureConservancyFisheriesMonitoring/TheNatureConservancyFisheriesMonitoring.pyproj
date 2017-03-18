@@ -24,7 +24,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="classifier.py" />
+    <Compile Include="convolutional_mlp.py" />
     <Compile Include="logistic_sgd.py" />
+    <Compile Include="mlp.py" />
+    <Compile Include="tf_deep_cnn.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import os
 import cv2
+import sys
 
 '''
 Insights
@@ -16,14 +17,20 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-newShape = (60, 40)
+#newShape = (60, 40)
+newShape = (28, 28)
 modelName = "model-svc-default.bin"
-predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
+#predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
+predictionsFilename = "predictions-CNN_28_28_1.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
     global newShape
     im = imresize(im, newShape)
+    im = im.astype(np.float)
+    im = im/ 256.0
+    #print(im.flatten()) 
+    #sys.exit(1)
     return im.flatten()
 
 def translateImage(image, dx, dy):
@@ -39,7 +46,7 @@ def rotateImage(image, angle):
 
 def getImageTransformations(im):
     images = []
-    #images.append(rotateImage(im, 90))
+    images.append(rotateImage(im, 90))
     images.append(rotateImage(im, 180))
     #images.append(rotateImage(im, 270))
     images.append(translateImage(im, 0,5))
@@ -56,16 +63,23 @@ def get_features_and_labels(data_dir):
     for i in range(len(classLabels)):
         label = classLabels[i]
         print(label)
+        
         for root, dirs, files in os.walk(os.path.join(data_dir, label)):
+            cnt = 0
             for name in files:
-                #print((os.path.join(root, name)))
+                print((os.path.join(root, name)))
                 img = imread(os.path.join(root, name))
+                #img = imread(os.path.join(root, name), mode='L')
                 data.append( cleanImage( img ) )
                 labels.append(i)
+                #break
 
                 for x in getImageTransformations(img):
                     data.append(x)
                     labels.append(i)
+
+                cnt += 1
+                #if cnt>=5: break
 
     data = np.array(data)
     labels = np.array(labels)
@@ -82,6 +96,7 @@ def get_feature_test_points(data_dir):
     for root, dirs, files in os.walk(data_dir):
         for name in files:
             #print((os.path.join(root, name)))
+            #data.append( cleanImage( imread(os.path.join(root, name), mode='L') ) )
             data.append( cleanImage( imread(os.path.join(root, name)) ) )
             filenames.append(name)
             #break
@@ -181,6 +196,7 @@ class ClassifierStage(Enum):
     Test = 2
     TrainTest = 3
 
+Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 

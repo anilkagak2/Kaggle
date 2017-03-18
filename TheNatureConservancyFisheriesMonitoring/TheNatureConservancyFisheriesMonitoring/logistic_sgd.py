@@ -21,7 +21,8 @@ import os
 import cv2
 
 
-newShape = (60, 40)
+#newShape = (60, 40)
+newShape = (28, 28)
 #newShape = (20, 20)
 modelName = "model-svc-default.bin"
 predictionsFilename = "predictions-SingleNeuralNet-SGD_60_x_40.csv"
@@ -126,8 +127,9 @@ def shared_dataset(data_xy, borrow=True):
     # lets ous get around this issue
     return shared_x, T.cast(shared_y, 'int32')
 
-def load_data(dataset):
+def load_data(Data_Dir):
     print('... loading data')
+    print(Data_Dir)
     X_train, X_test, y_train, y_test = get_features_and_labels(os.path.join(Data_Dir, 'train'))
 
     #y_train = y_train.reshape(y_train.shape[0],1)
@@ -393,7 +395,7 @@ def get_features_and_labels(data_dir):
         for root, dirs, files in os.walk(os.path.join(data_dir, label)):
             for name in files:
                 #print((os.path.join(root, name)))
-                img = imread(os.path.join(root, name))
+                img = imread(os.path.join(root, name), True)
                 data.append( cleanImage( img ) )
                 labels.append(i)
 
@@ -402,7 +404,7 @@ def get_features_and_labels(data_dir):
                     labels.append(i)
 
                 cnt += 1
-                #if cnt > 100 : break
+                if cnt > 10 : break
 
     data = np.array(data)
     labels = np.array(labels)
