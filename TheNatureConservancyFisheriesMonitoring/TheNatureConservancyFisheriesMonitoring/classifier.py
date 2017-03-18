@@ -17,11 +17,11 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-#newShape = (60, 40)
-newShape = (28, 28)
+newShape = (60, 40)
+#newShape = (28, 28)
 modelName = "model-svc-default.bin"
-#predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
-predictionsFilename = "predictions-CNN_28_28_1.csv"
+predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
+#predictionsFilename = "predictions-CNN_28_28_1.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
@@ -46,6 +46,7 @@ def rotateImage(image, angle):
 
 def getImageTransformations(im):
     images = []
+    '''
     images.append(rotateImage(im, 90))
     images.append(rotateImage(im, 180))
     #images.append(rotateImage(im, 270))
@@ -54,6 +55,7 @@ def getImageTransformations(im):
     images.append(translateImage(im, 0,-5))
     images.append(translateImage(im, -5,0))
     images = [ cleanImage(x) for x in images ]
+    '''
     return images
 
 def get_features_and_labels(data_dir):
@@ -152,8 +154,8 @@ def GatherTestDataAndPredict(Data_Dir):
     predictions = clf.predict_proba(X_test)
     #predictions = clf.decision_function(X_test) #clf.predict_proba(X_test)
 
-    #from sklearn.preprocessing import normalize
-    #predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
+    from sklearn.preprocessing import normalize
+    predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
     print(predictions[0])
 
     writePredictionsToCsv(Data_Dir, predictions, filenames)
