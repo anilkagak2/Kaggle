@@ -27,6 +27,9 @@
     <Compile Include="convolutional_mlp.py" />
     <Compile Include="logistic_sgd.py" />
     <Compile Include="mlp.py" />
+    <Compile Include="tf_1conv_net.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tf_deep_cnn.py">
       <SubType>Code</SubType>
     </Compile>
