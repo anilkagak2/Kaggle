@@ -4,11 +4,11 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 
-learning_rate = 0.01
-training_iters = 20000
+learning_rate = 0.001
+training_iters = 10000
 #training_iters = 2000
 batch_size = 64
-display_step = 10
+display_step = 100
 
 num_train, num_test = len(mnist.train.labels), len(mnist.test.labels)
 Ht, Wt, num_channels = 28, 28, 1
@@ -89,7 +89,12 @@ pred = conv_net(x, weights, biases, keep_prob)
 # Define loss and optimizer
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-
+'''objectiveFn = cost
+regularizer = 0.000
+for wt in weights: objectiveFn = objectiveFn + regularizer * tf.nn.l2_loss(weights[wt])
+for wt in biases: objectiveFn = objectiveFn + regularizer * tf.nn.l2_loss(biases[wt])
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(objectiveFn)
+'''
 # Evaluate model
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -99,16 +104,18 @@ init = tf.global_variables_initializer()
 
 with tf.Session() as sess:
     sess.run(init)
-    step = 1
-    while step * batch_size < training_iters:
+    #step = 1
+    for step in range(0, training_iters):
+    #while step * batch_size < training_iters:
         batch_x, batch_y = mnist.train.next_batch(batch_size)
         sess.run(optimizer, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout})
         if step % display_step == 0:
             loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y, keep_prob: 1.})
-            print("Iter " + str(step*batch_size) + \
+            print("Iter " + str(step) + \
                 ", Minibatch Loss= " + "{:.6f}".format(loss) + \
                 ", Training Accuracy= " + "{:.5f}".format(acc))
 
+            '''
             losses, accuracies = [], []
             s = 0
             test_batch_size = 1024
@@ -122,8 +129,8 @@ with tf.Session() as sess:
 
             loss, acc = np.mean(np.array(losses)), np.mean(np.array(accuracies))
             print("Train Loss= " + "{:.6f}".format(loss) + ", Accuracy= " + "{:.5f}".format(acc))
-
-        step += 1
+            '''
+        #step += 1
     print("Optimization Finished!")
 
     losses, accuracies = [], []
