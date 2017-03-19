@@ -4,13 +4,13 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 
-learning_rate = 0.001
+learning_rate = 0.01
 training_iters = 20000
 #training_iters = 2000
 batch_size = 64
 display_step = 10
 
-num_train = len(mnist.train.labels)
+num_train, num_test = len(mnist.train.labels), len(mnist.test.labels)
 Ht, Wt, num_channels = 28, 28, 1
 n_input, n_classes = Ht*Wt, 10
 
@@ -126,5 +126,16 @@ with tf.Session() as sess:
         step += 1
     print("Optimization Finished!")
 
-    loss, acc = sess.run([cost, accuracy], feed_dict={x: mnist.test.images, y: mnist.test.labels, keep_prob: 1.})
+    losses, accuracies = [], []
+    s = 0
+    test_batch_size = 1024
+    while (s+1)*batch_size < num_test:
+        start, end = s*batch_size, (s+1)*batch_size
+        loss, acc = sess.run([cost, accuracy], \
+            feed_dict={x: mnist.test.images[start:end], y: mnist.test.labels[start:end], keep_prob: 1.})
+        losses.append(loss)
+        accuracies.append(acc)
+        s += 1
+
+    loss, acc = np.mean(np.array(losses)), np.mean(np.array(accuracies))
     print("TestSet Loss= " + "{:.6f}".format(loss) + ", Accuracy= " + "{:.5f}".format(acc))
