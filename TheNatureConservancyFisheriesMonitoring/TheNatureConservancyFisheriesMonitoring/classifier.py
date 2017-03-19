@@ -17,11 +17,11 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-newShape = (60, 40)
-#newShape = (28, 28)
+#newShape = (60, 40)
+newShape = (28, 28)
 modelName = "model-svc-default.bin"
-predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
-#predictionsFilename = "predictions-CNN_28_28_1.csv"
+#predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
+predictionsFilename = "predictions-CNN_28_28_1.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def cleanImage(im):
@@ -81,7 +81,7 @@ def get_features_and_labels(data_dir):
                     labels.append(i)
 
                 cnt += 1
-                #if cnt>=5: break
+                #if cnt>=30: break
 
     data = np.array(data)
     labels = np.array(labels)

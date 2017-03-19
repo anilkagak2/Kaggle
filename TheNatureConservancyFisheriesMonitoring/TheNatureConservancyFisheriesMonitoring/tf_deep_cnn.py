@@ -17,11 +17,11 @@ print("n_classes = {0}".format(np.unique(y_train).size))
 
 # Parameters
 learning_rate = 0.001
-training_iters = 200000
-#training_iters = 2000
-#batch_size = 64
-batch_size = 256
-display_step = 10
+#training_iters = 10000
+training_iters = 2000
+batch_size = 64
+#batch_size = 256
+display_step = 100
 
 # Network Parameters
 n_input = X_train[0].size #784 # MNIST data input (img shape: 28*28)
@@ -82,7 +82,7 @@ def conv_net(x, weights, biases, dropout):
 
     # Output, class prediction
     out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
-    out = tf.nn.softmax(out)
+    #out = tf.nn.softmax(out)
     return out
 
 # Store layers weight & bias
@@ -127,7 +127,8 @@ with tf.Session() as sess:
     sess.run(init)
     step = 1
     # Keep training until reach max iterations
-    while step * batch_size < training_iters:
+    for step in range(0, training_iters):
+    #while step * batch_size < training_iters:
         next_batch = np.random.choice(num_train, size=batch_size, replace=False)
         #batch_x, batch_y = X_train[step*(batch_size-1):step*batch_size], y_train[step*(batch_size-1):step*batch_size] #mnist.train.next_batch(batch_size)
         batch_x, batch_y = X_train[next_batch], y_train[next_batch] #mnist.train.next_batch(batch_size)
@@ -140,10 +141,10 @@ with tf.Session() as sess:
             loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x,
                                                               y: batch_y,
                                                               keep_prob: 1.})
-            print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
+            print("Iter " + str(step) + ", Minibatch Loss= " + \
                   "{:.6f}".format(loss) + ", Training Accuracy= " + \
                   "{:.5f}".format(acc))
-        step += 1
+        #step += 1
     print("Optimization Finished!")
 
     saver.save(sess, model_file)
@@ -163,10 +164,10 @@ with tf.Session() as sess:
                                       y: y_test[:256],
                                       keep_prob: 1.}))
 
-    #prediction = tf.nn.softmax( pred )
-    prediction = pred 
+    prediction = tf.nn.softmax( pred )
+    #prediction = pred 
     print("predictions")
-    print(prediction.eval(feed_dict={x: X_test[:1], keep_prob: 1.}, session=sess))
+    print(prediction.eval(feed_dict={x: X_test[0].reshape((1,784*3)), keep_prob: 1.}, session=sess))
     print("actual value = {0}".format(y_test[0]))
 
     print("Prediction..")
