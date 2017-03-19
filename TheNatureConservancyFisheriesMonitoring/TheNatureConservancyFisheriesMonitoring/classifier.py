@@ -18,7 +18,8 @@ Insights
 '''
 
 #newShape = (60, 40)
-newShape = (28, 28)
+#newShape = (28, 28)
+newShape = (227, 227)
 modelName = "model-svc-default.bin"
 #predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
 predictionsFilename = "predictions-CNN_28_28_1.csv"

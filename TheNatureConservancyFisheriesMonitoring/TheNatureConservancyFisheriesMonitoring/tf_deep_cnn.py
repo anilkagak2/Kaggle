@@ -160,8 +160,8 @@ with tf.Session() as sess:
     #                                  keep_prob: 1.}))
 
     print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={x: X_test[:256],
-                                      y: y_test[:256],
+        sess.run(accuracy, feed_dict={x: X_test,
+                                      y: y_test,
                                       keep_prob: 1.}))
 
     prediction = tf.nn.softmax( pred )
