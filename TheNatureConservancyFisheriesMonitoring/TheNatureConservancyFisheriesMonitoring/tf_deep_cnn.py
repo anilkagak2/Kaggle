@@ -49,30 +49,45 @@ def conv2d(x, W, b, strides=1):
     return tf.nn.relu(x)
 
 
-def maxpool2d(x, k=2):
+def maxpool2d(x, k=2, strides=2):
     # MaxPool2D wrapper
-    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
+    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, strides, strides, 1],
                           padding='SAME')
 
 
 # Create model
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
-    x = tf.reshape(x, shape=[-1, 28, 28, 3])
+    x = tf.reshape(x, shape=[-1, 227, 227, 3])
 
     # Convolution Layer
-    conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    conv1 = conv2d(x, weights['wc1'], biases['bc1'], 4)
     # Max Pooling (down-sampling)
-    conv1 = maxpool2d(conv1, k=2)
+    conv1 = maxpool2d(conv1, k=3, strides=2)
+    conv1 = tf.nn.lrn(conv1)
 
     # Convolution Layer
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
-    conv2 = maxpool2d(conv2, k=2)
+    conv2 = maxpool2d(conv2, k=3, strides=2)
+    conv2 = tf.nn.lrn(conv2)
+
+    conv3 = conv2d(conv2, weights['wc3'], biases['bc3'])
+    # Max Pooling (down-sampling)
+    conv3 = maxpool2d(conv3, k=3, strides=2)
+
+    conv4 = conv2d(conv3, weights['wc4'], biases['bc4'])
+    # Max Pooling (down-sampling)
+    conv4 = maxpool2d(conv4, k=3, strides=2)
+
+    conv5 = conv2d(conv4, weights['wc5'], biases['bc5'])
+    # Max Pooling (down-sampling)
+    conv5 = maxpool2d(conv5, k=3, strides=2)
+    conv5 = tf.nn.lrn(conv5)
 
     # Fully connected layer
     # Reshape conv2 output to fit fully connected layer input
-    fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
+    fc1 = tf.reshape(conv5, [-1, weights['wd1'].get_shape().as_list()[0]])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
     #fc1 = tf.nn.tanh(fc1)
@@ -88,9 +103,12 @@ def conv_net(x, weights, biases, dropout):
 # Store layers weight & bias
 weights = {
     # 5x5 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([5, 5, 3, 32])),
+    'wc1': tf.Variable(tf.random_normal([11, 11, 3, 96])),
     # 5x5 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64])),
+    'wc2': tf.Variable(tf.random_normal([5, 5, 96, 256])),
+    'wc3': tf.Variable(tf.random_normal([3, 3, 256, 384])),
+    'wc4': tf.Variable(tf.random_normal([3, 3, 384, 384])),
+    'wc5': tf.Variable(tf.random_normal([3, 3, 384, 256])),
     # fully connected, 7*7*64 inputs, 1024 outputs
     'wd1': tf.Variable(tf.random_normal([7*7*64, 1024])),
     # 1024 inputs, 10 outputs (class prediction)
@@ -98,8 +116,11 @@ weights = {
 }
 
 biases = {
-    'bc1': tf.Variable(tf.random_normal([32])),
-    'bc2': tf.Variable(tf.random_normal([64])),
+    'bc1': tf.Variable(tf.random_normal([96])),
+    'bc2': tf.Variable(tf.random_normal([256])),
+    'bc3': tf.Variable(tf.random_normal([384])),
+    'bc4': tf.Variable(tf.random_normal([384])),
+    'bc5': tf.Variable(tf.random_normal([256])),
     'bd1': tf.Variable(tf.random_normal([1024])),
     'out': tf.Variable(tf.random_normal([n_classes]))
 }

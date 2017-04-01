@@ -26,6 +26,9 @@
     <Compile Include="AlexNet.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AlexNetInPractice.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="classifier.py" />
     <Compile Include="convolutional_mlp.py" />
     <Compile Include="logistic_sgd.py" />

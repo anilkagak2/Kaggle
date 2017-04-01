@@ -19,11 +19,17 @@ Insights
 
 #newShape = (60, 40)
 #newShape = (28, 28)
-newShape = (227, 227)
+newShape = (64, 64)
 modelName = "model-svc-default.bin"
 #predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
 predictionsFilename = "predictions-CNN_28_28_1.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+
+def preprocessImage(im):
+    global newShape
+    im = imresize(im, newShape)
+    im = im.astype(np.float)
+    return im
 
 def cleanImage(im):
     global newShape
@@ -47,17 +53,50 @@ def rotateImage(image, angle):
 
 def getImageTransformations(im):
     images = []
-    '''
-    images.append(rotateImage(im, 90))
-    images.append(rotateImage(im, 180))
-    #images.append(rotateImage(im, 270))
-    images.append(translateImage(im, 0,5))
-    images.append(translateImage(im, 5,0))
-    images.append(translateImage(im, 0,-5))
-    images.append(translateImage(im, -5,0))
+    
+    #angles = [i for i in range(10,360,10)]
+    angles = [30, 60, 90, 150, 180, 270]
+    for angle in angles:
+           images.append(rotateImage(im, angle))
+
+    #dxy = [(0,5), (5,0), (0,10), (10,0), (0,20),(20,0)]
+    dxy = [(0,5), (5,0), (0,10), (10,0)]
+    for dx, dy in dxy:
+        images.append(translateImage(im, dx,dy))
+        images.append(translateImage(im, -dx,-dy))
+
     images = [ cleanImage(x) for x in images ]
-    '''
+    
     return images
+
+def get_images_labels(data_dir):
+    global classLabels 
+    labels = []
+    data = []
+    for i in range(len(classLabels)):
+        label = classLabels[i]
+        print(label)
+        
+        for root, dirs, files in os.walk(os.path.join(data_dir, label)):
+            cnt = 0
+            for name in files:
+                print((os.path.join(root, name)))
+                img = imread(os.path.join(root, name))
+                #img = imread(os.path.join(root, name), mode='L')
+                data.append( preprocessImage(img) )
+                labels.append(i)
+
+                #cnt += 1
+                #if cnt>30: break
+
+    data = np.array(data)
+    labels = np.array(labels)
+    print(data.shape)
+    print(labels.shape)
+    print(data[0].shape)
+    print(labels[0].shape)
+    X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.1, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 def get_features_and_labels(data_dir):
     global classLabels 

@@ -4,11 +4,11 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 
-learning_rate = 0.01
-training_iters = 10000
-#training_iters = 2000
-batch_size = 64
-display_step = 100
+learning_rate = 0.001
+#training_iters = 10000
+training_iters = 4000
+batch_size = 256
+display_step = 1000
 
 num_train, num_test = len(mnist.train.labels), len(mnist.test.labels)
 Ht, Wt, num_channels = 28, 28, 1
@@ -43,13 +43,13 @@ def conv_net(x, weights, biases, dropout):
     conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     # Max Pooling (down-sampling)
     conv1 = maxpool2d(conv1, k=2)
-    conv1 = tf.nn.lrn(conv1)
+    #conv1 = tf.nn.lrn(conv1)
 
     # Convolution Layer
     conv2 = conv2d(conv1, weights['wc2'], biases['bc2'])
     # Max Pooling (down-sampling)
     conv2 = maxpool2d(conv2, k=2)
-    conv2 = tf.nn.lrn(conv2)
+    #conv2 = tf.nn.lrn(conv2)
 
     # Fully connected layer
     # Reshape conv2 output to fit fully connected layer input
@@ -59,7 +59,7 @@ def conv_net(x, weights, biases, dropout):
     #fc1 = tf.nn.tanh(fc1)
     #fc1 = tf.nn.sigmoid(fc1)
     # Apply Dropout
-    fc1 = tf.nn.dropout(fc1, dropout)
+    #fc1 = tf.nn.dropout(fc1, dropout)
 
     # Output, class prediction
     out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
@@ -67,7 +67,7 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 # Store layers weight & bias
-weights = {
+'''weights = {
     # 5x5 conv, 1 input, 32 outputs
     'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
     # 5x5 conv, 32 inputs, 64 outputs
@@ -76,6 +76,17 @@ weights = {
     'wd1': tf.Variable(tf.random_normal([7*7*64, 1024])),
     # 1024 inputs, 10 outputs (class prediction)
     'out': tf.Variable(tf.random_normal([1024, n_classes]))
+}'''
+
+weights = {
+    # 5x5 conv, 1 input, 32 outputs
+    'wc1': tf.get_variable("wc1", shape=[5, 5, 1, 32], initializer=tf.contrib.layers.xavier_initializer()),
+    # 5x5 conv, 32 inputs, 64 outputs
+    'wc2': tf.get_variable("wc2", shape=[5, 5, 32, 64], initializer=tf.contrib.layers.xavier_initializer()),
+    # fully connected, 7*7*64 inputs, 1024 outputs
+    'wd1': tf.get_variable("wd1", shape=[7*7*64, 1024], initializer=tf.contrib.layers.xavier_initializer()),
+    # 1024 inputs, 10 outputs (class prediction)
+    'out': tf.get_variable("out", shape=[1024, n_classes], initializer=tf.contrib.layers.xavier_initializer())
 }
 
 biases = {
@@ -90,13 +101,13 @@ pred = conv_net(x, weights, biases, keep_prob)
 
 # Define loss and optimizer
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-'''objectiveFn = cost
-regularizer = 0.000
+#optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+objectiveFn = cost
+regularizer = 0.00001
 for wt in weights: objectiveFn = objectiveFn + regularizer * tf.nn.l2_loss(weights[wt])
 for wt in biases: objectiveFn = objectiveFn + regularizer * tf.nn.l2_loss(biases[wt])
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(objectiveFn)
-'''
+
 # Evaluate model
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -117,7 +128,7 @@ with tf.Session() as sess:
                 ", Minibatch Loss= " + "{:.6f}".format(loss) + \
                 ", Training Accuracy= " + "{:.5f}".format(acc))
 
-            '''
+            
             losses, accuracies = [], []
             s = 0
             test_batch_size = 1024
@@ -131,7 +142,7 @@ with tf.Session() as sess:
 
             loss, acc = np.mean(np.array(losses)), np.mean(np.array(accuracies))
             print("Train Loss= " + "{:.6f}".format(loss) + ", Accuracy= " + "{:.5f}".format(acc))
-            '''
+            
         #step += 1
     print("Optimization Finished!")
 
