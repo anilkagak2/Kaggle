@@ -19,15 +19,16 @@ Insights
 
 #newShape = (60, 40)
 #newShape = (28, 28)
-newShape = (64, 64)
+newShape = (128, 128)
 modelName = "model-svc-default.bin"
 #predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
-predictionsFilename = "predictions-CNN_28_28_1.csv"
+predictionsFilename = "predictions-2CNN_1FC_64_64_3.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def preprocessImage(im):
     global newShape
-    im = imresize(im, newShape)
+    #im = imresize(im, newShape)
+    im = cv2.resize(im.astype('uint8'), dsize=newShape)
     im = im.astype(np.float)
     return im
 
@@ -82,9 +83,27 @@ def get_images_labels(data_dir):
             for name in files:
                 print((os.path.join(root, name)))
                 img = imread(os.path.join(root, name))
+                #cv2.imshow('dst',img); cv2.waitKey();
                 #img = imread(os.path.join(root, name), mode='L')
-                data.append( preprocessImage(img) )
+                img = preprocessImage(img)
+                data.append( img )
                 labels.append(i)
+
+                #cv2.imshow('dst',img.astype(np.uint8)); cv2.waitKey();
+
+                angles = [90, 180, 270]
+                for angle in angles:
+                    #cv2.imshow('dst',rotateImage(img, angle).astype(np.uint8)); cv2.waitKey();
+                    data.append(rotateImage(img, angle)); labels.append(i)
+
+                '''
+                dxy = [(0,5), (5,0)]
+                for dx, dy in dxy:
+                    #cv2.imshow('dst',translateImage(img, dx,dy).astype(np.uint8)); cv2.waitKey();
+                    #cv2.imshow('dst',translateImage(img, -dx,-dy).astype(np.uint8)); cv2.waitKey();
+                    data.append(translateImage(img, dx,dy)); labels.append(i)
+                    data.append(translateImage(img, -dx,-dy)); labels.append(i)
+                '''
 
                 #cnt += 1
                 #if cnt>30: break
@@ -96,7 +115,8 @@ def get_images_labels(data_dir):
     print(data[0].shape)
     print(labels[0].shape)
     X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.1, random_state=42)
-    return X_train, X_test, y_train, y_test
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
+    return X_train, X_test, X_valid, y_train, y_test, y_valid
 
 def get_features_and_labels(data_dir):
     global classLabels 
@@ -121,7 +141,7 @@ def get_features_and_labels(data_dir):
                     labels.append(i)
 
                 cnt += 1
-                #if cnt>=30: break
+                if cnt>=30: break
 
     data = np.array(data)
     labels = np.array(labels)
@@ -142,6 +162,20 @@ def get_feature_test_points(data_dir):
             data.append( cleanImage( imread(os.path.join(root, name)) ) )
             filenames.append(name)
             #break
+    
+    data = np.array(data)
+    return data, filenames
+
+def get_feature_test_points_preprocessed(data_dir):
+    data = []
+    filenames = []
+    for root, dirs, files in os.walk(data_dir):
+        i = 0
+        for name in files:
+            data.append( preprocessImage( imread(os.path.join(root, name)) ) )
+            filenames.append(name)
+            i += 1
+            if i>20: break
     
     data = np.array(data)
     return data, filenames
