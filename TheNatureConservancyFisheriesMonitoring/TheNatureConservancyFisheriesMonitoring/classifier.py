@@ -90,7 +90,6 @@ def get_images_labels(data_dir):
                 labels.append(i)
 
                 #cv2.imshow('dst',img.astype(np.uint8)); cv2.waitKey();
-
                 '''
                 angles = [90, 180, 270]
                 for angle in angles:
