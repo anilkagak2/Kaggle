@@ -31,6 +31,9 @@
     </Compile>
     <Compile Include="classifier.py" />
     <Compile Include="convolutional_mlp.py" />
+    <Compile Include="Keras_MNIST_MLP.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="logistic_sgd.py" />
     <Compile Include="mlp.py" />
     <Compile Include="tf_1conv_net.py">
