@@ -19,7 +19,7 @@ Insights
 
 #newShape = (60, 40)
 #newShape = (28, 28)
-newShape = (128, 128)
+newShape = (64, 64)
 modelName = "model-svc-default.bin"
 #predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
 predictionsFilename = "predictions-2CNN_1FC_64_64_3.csv"
@@ -91,11 +91,12 @@ def get_images_labels(data_dir):
 
                 #cv2.imshow('dst',img.astype(np.uint8)); cv2.waitKey();
 
+                '''
                 angles = [90, 180, 270]
                 for angle in angles:
                     #cv2.imshow('dst',rotateImage(img, angle).astype(np.uint8)); cv2.waitKey();
                     data.append(rotateImage(img, angle)); labels.append(i)
-
+                '''
                 '''
                 dxy = [(0,5), (5,0)]
                 for dx, dy in dxy:
@@ -174,8 +175,8 @@ def get_feature_test_points_preprocessed(data_dir):
         for name in files:
             data.append( preprocessImage( imread(os.path.join(root, name)) ) )
             filenames.append(name)
-            i += 1
-            if i>20: break
+            #i += 1
+            #if i>20: break
     
     data = np.array(data)
     return data, filenames
