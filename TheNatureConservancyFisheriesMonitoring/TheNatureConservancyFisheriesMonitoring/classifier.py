@@ -19,7 +19,8 @@ Insights
 
 #newShape = (60, 40)
 #newShape = (28, 28)
-newShape = (64, 64)
+#newShape = (64, 64)
+newShape = (128, 128)
 modelName = "model-svc-default.bin"
 #predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
 predictionsFilename = "predictions-2CNN_1FC_64_64_3.csv"
@@ -105,8 +106,8 @@ def get_images_labels(data_dir):
                     data.append(translateImage(img, -dx,-dy)); labels.append(i)
                 '''
 
-                #cnt += 1
-                #if cnt>30: break
+                cnt += 1
+                if cnt>200: break
 
     data = np.array(data)
     labels = np.array(labels)
