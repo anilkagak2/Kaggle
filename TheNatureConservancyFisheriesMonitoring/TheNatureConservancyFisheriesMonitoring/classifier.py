@@ -107,7 +107,7 @@ def get_images_labels(data_dir):
                 '''
 
                 cnt += 1
-                if cnt>200: break
+                if cnt>600: break
 
     data = np.array(data)
     labels = np.array(labels)
