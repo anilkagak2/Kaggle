@@ -17,13 +17,13 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-#newShape = (60, 40)
+newShape = (60, 40)
 #newShape = (28, 28)
 #newShape = (64, 64)
-newShape = (128, 128)
+#newShape = (128, 128)
 modelName = "model-svc-default.bin"
-#predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40.csv"
-predictionsFilename = "predictions-2CNN_1FC_64_64_3.csv"
+predictionsFilename = "predictions-RandomForestClassifier_moreTrainData_60_x_40_2_test_stg2.csv"
+#predictionsFilename = "predictions-2CNN_1FC_64_64_3.csv"
 classLabels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
 def preprocessImage(im):
@@ -137,12 +137,14 @@ def get_features_and_labels(data_dir):
                 labels.append(i)
                 #break
 
+                '''
                 for x in getImageTransformations(img):
                     data.append(x)
                     labels.append(i)
 
                 cnt += 1
                 if cnt>=30: break
+                '''
 
     data = np.array(data)
     labels = np.array(labels)
@@ -200,7 +202,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     # Train the classifier
     #clf = svm.SVC()
     #clf = svm.LinearSVC()
-    clf = RandomForestClassifier(n_estimators=500, n_jobs=5)
+    clf = RandomForestClassifier(n_estimators=500, n_jobs=-1)
     clf.fit(X_train, y_train)
 
     # Predict on the test set and report the metrics
@@ -223,14 +225,18 @@ def writePredictionsToCsv(Data_Dir, predictions, filenames):
 def GatherTestDataAndPredict(Data_Dir):
     print("Prediction..")
     X_test, filenames = get_feature_test_points(os.path.join(Data_Dir, 'test_stg1'))
+    X_test_st2, filenames_st2 = get_feature_test_points(os.path.join(Data_Dir, 'test_stg2'))
+    filenames_st2 = [ "test_stg2/" + x for x in filenames_st2 ]
+    filenames = filenames + filenames_st2
+    X_test = np.concatenate((X_test, X_test_st2), axis=0)
     print(X_test)
     clf = loadModel()
     #predictions = clf.predict(X_test)
     predictions = clf.predict_proba(X_test)
     #predictions = clf.decision_function(X_test) #clf.predict_proba(X_test)
 
-    from sklearn.preprocessing import normalize
-    predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
+    #from sklearn.preprocessing import normalize
+    #predictions = normalize(1.0/( 1+np.exp(-1*predictions)), axis=1, norm='l1')
     print(predictions[0])
 
     writePredictionsToCsv(Data_Dir, predictions, filenames)
@@ -277,7 +283,8 @@ Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 
-    Stage = ClassifierStage.TrainTest
+    #Stage = ClassifierStage.TrainTest
+    Stage = ClassifierStage.Test
 
     if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : GatherTrainTestAndEvaluate(Data_Dir)
     if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir)
