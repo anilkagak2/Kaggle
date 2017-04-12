@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import keras
+from sklearn.preprocessing import normalize
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from scipy.ndimage import imread
 from scipy.misc import imresize
@@ -42,9 +43,11 @@ def cleanImage(im):
     im = imresize(im, newShape)
     im = im.astype(np.float)
     im = im/ 256.0
+    im = im.flatten()
+    #im = normalize(im)
     #print(im.flatten()) 
     #sys.exit(1)
-    return im.flatten()
+    return im
 
 def translateImage(image, dx, dy):
     trans_mat = np.float32([[1,0,dx],[0,1,dy]])
@@ -207,19 +210,21 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     #clf = svm.SVC()
     #clf = svm.LinearSVC()
     total_trees = 500
-    clf = RandomForestClassifier(n_estimators=total_trees, n_jobs=-1, warm_start=True)
-    clf.fit(X_train, y_train)
+    #clf = RandomForestClassifier(n_estimators=total_trees, n_jobs=-1, warm_start=True)
+    #clf.fit(X_train, y_train)
     tree_in_one_batch = 100
     datagen = ImageDataGenerator(
+        samplewise_center=True,
         rotation_range=40,
         width_shift_range=0.2,
         height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
+        shear_range=0.1,
+        zoom_range=0.1,
         horizontal_flip=True,
         fill_mode='nearest')
 
-    epochs = 10
+    new_X_train, new_y_train = X_train.copy(), y_train.copy()
+    epochs = 20
     # here's a more "manual" example
     for e in range(epochs):
         print('Epoch = {0}'.format(e))
@@ -228,10 +233,14 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         k_x_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
         for X_batch, Y_batch in datagen.flow(k_x_train, y_train, batch_size=batch_size):
             X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
+            print(X_batch.shape)
+            print(new_X_train.shape)
+            new_X_train = np.concatenate((new_X_train, X_batch))
+            new_y_train = np.concatenate((new_y_train, Y_batch))
 
             total_trees += tree_in_one_batch
-            clf.set_params(n_estimators=total_trees)
-            clf.fit(X_batch, Y_batch)
+            #clf.set_params(n_estimators=total_trees)
+            #clf.fit(X_batch, Y_batch)
 
             print("batch = {0}".format(batches))
             batches += 1
@@ -241,8 +250,13 @@ def GatherTrainTestAndEvaluate(Data_Dir):
                 break
 
         # Predict on the test set and report the metrics
-        predicted = clf.predict(X_test)
-        print(metrics.classification_report(y_test, predicted))
+        #predicted = clf.predict(X_test)
+        #print(metrics.classification_report(y_test, predicted))
+
+    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
+    clf.fit(new_X_train, new_y_train)
+    predicted = clf.predict(X_test)
+    print(metrics.classification_report(y_test, predicted))
 
     '''
     from sklearn.linear_model import SGDClassifier
