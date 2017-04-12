@@ -206,9 +206,10 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     # Train the classifier
     #clf = svm.SVC()
     #clf = svm.LinearSVC()
-    ##clf = RandomForestClassifier(n_estimators=500, n_jobs=-1)
-    ##clf.fit(X_train, y_train)
-
+    total_trees = 500
+    clf = RandomForestClassifier(n_estimators=total_trees, n_jobs=-1, warm_start=True)
+    clf.fit(X_train, y_train)
+    tree_in_one_batch = 100
     datagen = ImageDataGenerator(
         rotation_range=40,
         width_shift_range=0.2,
@@ -218,6 +219,32 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         horizontal_flip=True,
         fill_mode='nearest')
 
+    epochs = 10
+    # here's a more "manual" example
+    for e in range(epochs):
+        print('Epoch = {0}'.format(e))
+        batches = 0
+        batch_size = 4096
+        k_x_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
+        for X_batch, Y_batch in datagen.flow(k_x_train, y_train, batch_size=batch_size):
+            X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
+
+            total_trees += tree_in_one_batch
+            clf.set_params(n_estimators=total_trees)
+            clf.fit(X_batch, Y_batch)
+
+            print("batch = {0}".format(batches))
+            batches += 1
+            if batches >= len(X_train) / (2*1024):
+                # we need to break the loop by hand because
+                # the generator loops indefinitely
+                break
+
+        # Predict on the test set and report the metrics
+        predicted = clf.predict(X_test)
+        print(metrics.classification_report(y_test, predicted))
+
+    '''
     from sklearn.linear_model import SGDClassifier
     global classLabels 
     clf = SGDClassifier(loss='log')
@@ -242,6 +269,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         # Predict on the test set and report the metrics
         predicted = clf.predict(X_test)
         print(metrics.classification_report(y_test, predicted))
+    '''
 
     # Save the classifier
     saveModel(clf)
