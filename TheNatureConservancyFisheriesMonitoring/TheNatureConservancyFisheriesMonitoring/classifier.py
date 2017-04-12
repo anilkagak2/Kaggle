@@ -1,5 +1,7 @@
 import numpy as np
 import pickle
+import keras
+from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from scipy.ndimage import imread
 from scipy.misc import imresize
 from sklearn import svm, metrics
@@ -17,7 +19,9 @@ Insights
 4) Fish will be very small in the picture, other objects are relatively large and makes the pic.
 '''
 
-newShape = (60, 40)
+#newShape = (60, 40)
+img_rows, img_cols = 60, 40
+newShape = (img_rows, img_cols)
 #newShape = (28, 28)
 #newShape = (64, 64)
 #newShape = (128, 128)
@@ -202,12 +206,42 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     # Train the classifier
     #clf = svm.SVC()
     #clf = svm.LinearSVC()
-    clf = RandomForestClassifier(n_estimators=500, n_jobs=-1)
-    clf.fit(X_train, y_train)
+    ##clf = RandomForestClassifier(n_estimators=500, n_jobs=-1)
+    ##clf.fit(X_train, y_train)
 
-    # Predict on the test set and report the metrics
-    predicted = clf.predict(X_test)
-    print(metrics.classification_report(y_test, predicted))
+    datagen = ImageDataGenerator(
+        rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest')
+
+    from sklearn.linear_model import SGDClassifier
+    global classLabels 
+    clf = SGDClassifier(loss='log')
+    all_classes = np.arange(len(classLabels))
+    epochs = 100
+    # here's a more "manual" example
+    for e in range(epochs):
+        print('Epoch = {0}'.format(e))
+        batches = 0
+        batch_size = 256
+        k_x_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
+        for X_batch, Y_batch in datagen.flow(k_x_train, y_train, batch_size=1024):
+            X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
+            loss = clf.partial_fit(X_batch, Y_batch, classes=all_classes)
+            print("batch = {0}".format(batches))
+            batches += 1
+            if batches >= 4*len(X_train) / 1024:
+                # we need to break the loop by hand because
+                # the generator loops indefinitely
+                break
+
+        # Predict on the test set and report the metrics
+        predicted = clf.predict(X_test)
+        print(metrics.classification_report(y_test, predicted))
 
     # Save the classifier
     saveModel(clf)
@@ -283,8 +317,8 @@ Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData'
 
-    #Stage = ClassifierStage.TrainTest
-    Stage = ClassifierStage.Test
+    Stage = ClassifierStage.TrainTest
+    #Stage = ClassifierStage.Test
 
     if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : GatherTrainTestAndEvaluate(Data_Dir)
     if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir)
