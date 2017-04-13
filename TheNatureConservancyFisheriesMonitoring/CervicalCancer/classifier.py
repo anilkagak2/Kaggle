@@ -159,7 +159,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
 
     new_X_train, new_y_train = X_train.copy(), y_train.copy()
     new_X_test, new_y_test = X_test.copy(), y_test.copy()
-    epochs = 20
+    '''epochs = 20
     # here's a more "manual" example
     for e in range(epochs):
         print('Epoch = {0}'.format(e))
@@ -185,9 +185,17 @@ def GatherTrainTestAndEvaluate(Data_Dir):
             new_y_test = np.concatenate((new_y_test, Y_batch))
             print("batch = {0}".format(batches))
             batches += 1
-            if batches >= len(X_test) / (2*1024): break
+            if batches >= len(X_test) / (2*1024): break'''
 
-    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
+    from sklearn.ensemble import AdaBoostClassifier
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.calibration import CalibratedClassifierCV
+
+    clf = svm.LinearSVC()
+    clf.fit(new_X_train, new_y_train)
+    clf = CalibratedClassifierCV(clf, cv="prefit")
+    #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
+    #clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
     print(metrics.classification_report(new_y_test, predicted))
