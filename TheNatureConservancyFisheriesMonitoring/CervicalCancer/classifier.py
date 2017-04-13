@@ -191,10 +191,10 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.calibration import CalibratedClassifierCV
 
-    clf = svm.LinearSVC()
-    clf.fit(new_X_train, new_y_train)
-    clf = CalibratedClassifierCV(clf, cv="prefit")
-    #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
+    #clf = svm.LinearSVC()
+    #clf.fit(new_X_train, new_y_train)
+    #clf = CalibratedClassifierCV(clf, cv="prefit")
+    clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
     #clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
