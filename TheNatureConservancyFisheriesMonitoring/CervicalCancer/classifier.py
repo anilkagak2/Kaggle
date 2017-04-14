@@ -14,8 +14,9 @@ import sys
 
 DEVELOPMENT = False
 LOAD_FROM_DISK = False
+img_rows, img_cols, nchannels = 128, 128, 3
 
-img_rows, img_cols = 60, 40
+#img_rows, img_cols, nchannels = 60, 40, 3
 newShape = (img_rows, img_cols)
 modelName = "model-svc-default.bin"
 predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_x_" + str(img_cols) + ".csv"
@@ -194,8 +195,8 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     #clf = svm.LinearSVC()
     #clf.fit(new_X_train, new_y_train)
     #clf = CalibratedClassifierCV(clf, cv="prefit")
-    clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
-    #clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
+    #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
+    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
     print(metrics.classification_report(new_y_test, predicted))
