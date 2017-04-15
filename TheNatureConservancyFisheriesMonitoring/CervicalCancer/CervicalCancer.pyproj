@@ -24,6 +24,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="classifier.py" />
+    <Compile Include="keras_lenet5.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="keras_vgg16.py">
       <SubType>Code</SubType>
     </Compile>
