@@ -18,7 +18,7 @@ else:
 
 batch_size = 32
 num_classes = len(classLabels)
-epochs = 10
+epochs = 50
 data_augmentation = False
 
 x_train = x_train.reshape((len(x_train), img_rows, img_cols, nchannels))
@@ -36,34 +36,35 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 model = Sequential()
 
 model.add(Conv2D(32, (3, 3), padding='same',
-                 input_shape=x_train.shape[1:]))
+                 input_shape=x_train.shape[1:], kernel_initializer='glorot_uniform'))
 model.add(Activation('relu'))
-model.add(Conv2D(32, (3, 3)))
+model.add(Conv2D(32, (3, 3), kernel_initializer='glorot_uniform'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(Conv2D(64, (3, 3), padding='same', kernel_initializer='glorot_uniform'))
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3, 3)))
+model.add(Conv2D(64, (3, 3), kernel_initializer='glorot_uniform'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
-model.add(Dense(512))
+model.add(Dense(512, kernel_initializer='glorot_uniform'))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes))
+model.add(Dense(num_classes, kernel_initializer='glorot_uniform'))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
-opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+#opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+opt = keras.optimizers.Adadelta(decay=1e-3)
 
 # Let's train the model using RMSprop
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
-              metrics=['accuracy'])
+              metrics=['accuracy', 'categorical_crossentropy'])
 
 if not data_augmentation:
     print('Not using data augmentation.')
@@ -71,7 +72,8 @@ if not data_augmentation:
               batch_size=batch_size,
               epochs=epochs,
               validation_data=(x_test, y_test),
-              shuffle=True)
+              shuffle=True,
+              callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=1, verbose=1, mode='auto')])
 else:
     print('Using real-time data augmentation.')
     # This will do preprocessing and realtime data augmentation:

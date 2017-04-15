@@ -357,3 +357,53 @@ Epoch 10/10
 avg / total       0.59      0.58      0.55       821
 
 log-loss = 0.901
+
+---------------------------------------------------------------------------------------
+128x128 RGB image, CNN- 4Conv-1FC
+10 epoch, 7388 batches per epoch, 32 batch size, no data augmentation, 
+early stopping (stops after 16th epoch),
+optimizer = Adadelta(decay=1e-3), loss = categorical_crossentropy,
+EarlyStopping(monitor='val_loss', min_delta=0, patience=1, verbose=1, mode='auto')]
+using additional images
+
+7388/7388 [==============================] - 49s - loss: 1.0091 - acc: 0.5264 - categorical_crossentropy: 1.0091 - val_loss: 1.0151 - val_acc: 0.5396 - val_categorical_crossentropy: 1.0151
+Epoch 2/50
+7388/7388 [==============================] - 46s - loss: 0.9596 - acc: 0.5387 - categorical_crossentropy: 0.9596 - val_loss: 0.9547 - val_acc: 0.5432 - val_categorical_crossentropy: 0.9547
+Epoch 3/50
+7388/7388 [==============================] - 47s - loss: 0.9295 - acc: 0.5499 - categorical_crossentropy: 0.9295 - val_loss: 0.9448 - val_acc: 0.5213 - val_categorical_crossentropy: 0.9448
+Epoch 4/50
+7388/7388 [==============================] - 46s - loss: 0.9081 - acc: 0.5554 - categorical_crossentropy: 0.9081 - val_loss: 0.9280 - val_acc: 0.5457 - val_categorical_crossentropy: 0.9280
+Epoch 5/50
+7388/7388 [==============================] - 46s - loss: 0.8907 - acc: 0.5697 - categorical_crossentropy: 0.8907 - val_loss: 0.9164 - val_acc: 0.5761 - val_categorical_crossentropy: 0.9164
+Epoch 6/50
+7388/7388 [==============================] - 46s - loss: 0.8686 - acc: 0.5804 - categorical_crossentropy: 0.8686 - val_loss: 0.9150 - val_acc: 0.5676 - val_categorical_crossentropy: 0.9150
+Epoch 7/50
+7388/7388 [==============================] - 46s - loss: 0.8445 - acc: 0.5927 - categorical_crossentropy: 0.8445 - val_loss: 0.8916 - val_acc: 0.5761 - val_categorical_crossentropy: 0.8916
+Epoch 8/50
+7388/7388 [==============================] - 46s - loss: 0.8165 - acc: 0.6214 - categorical_crossentropy: 0.8165 - val_loss: 0.8750 - val_acc: 0.5993 - val_categorical_crossentropy: 0.8750
+Epoch 9/50
+7388/7388 [==============================] - 46s - loss: 0.7842 - acc: 0.6370 - categorical_crossentropy: 0.7842 - val_loss: 0.8856 - val_acc: 0.5907 - val_categorical_crossentropy: 0.8856
+Epoch 10/50
+7388/7388 [==============================] - 46s - loss: 0.7502 - acc: 0.6601 - categorical_crossentropy: 0.7502 - val_loss: 0.8720 - val_acc: 0.6041 - val_categorical_crossentropy: 0.8720
+Epoch 11/50
+7388/7388 [==============================] - 46s - loss: 0.7124 - acc: 0.6830 - categorical_crossentropy: 0.7124 - val_loss: 0.8558 - val_acc: 0.5932 - val_categorical_crossentropy: 0.8558
+Epoch 12/50
+7388/7388 [==============================] - 46s - loss: 0.6758 - acc: 0.7047 - categorical_crossentropy: 0.6758 - val_loss: 0.8478 - val_acc: 0.6066 - val_categorical_crossentropy: 0.8478
+Epoch 13/50
+7388/7388 [==============================] - 46s - loss: 0.6328 - acc: 0.7306 - categorical_crossentropy: 0.6328 - val_loss: 0.8295 - val_acc: 0.6346 - val_categorical_crossentropy: 0.8295
+Epoch 14/50
+7388/7388 [==============================] - 46s - loss: 0.5970 - acc: 0.7484 - categorical_crossentropy: 0.5970 - val_loss: 0.8291 - val_acc: 0.6334 - val_categorical_crossentropy: 0.8291
+Epoch 15/50
+7388/7388 [==============================] - 46s - loss: 0.5513 - acc: 0.7730 - categorical_crossentropy: 0.5513 - val_loss: 0.8321 - val_acc: 0.6516 - val_categorical_crossentropy: 0.8321
+Epoch 16/50
+7388/7388 [==============================] - 46s - loss: 0.5077 - acc: 0.7886 - categorical_crossentropy: 0.5077 - val_loss: 0.8323 - val_acc: 0.6358 - val_categorical_crossentropy: 0.8323
+Epoch 00015: early stopping
+             precision    recall  f1-score   support
+
+          0       0.61      0.53      0.57       147
+          1       0.68      0.75      0.71       424
+          2       0.57      0.50      0.53       250
+
+avg / total       0.63      0.64      0.63       821
+
+log-loss = 0.832
