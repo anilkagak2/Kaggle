@@ -287,3 +287,40 @@ using additional images
 avg / total       0.60      0.59      0.57       821
 
 log-loss = 0.898
+
+---------------------------------------------------------------------------------------
+128x128 RGB image, CNN- 4Conv-1FC
+10 epoch, 7388 batches per epoch, 32 batch size, data augmentation, 
+featurewise_center=False, samplewise_center=False, featurewise_std_normalization=False,  
+samplewise_std_normalization=False, zca_whitening=False, 
+rotation_range=0, width_shift_range=0.1, height_shift_range=0.1,  
+horizontal_flip=True, vertical_flip=False
+using additional images
+7388/7388 [==============================] - 1242s - loss: 0.9141 - acc: 0.5548 - val_loss: 0.9068 - val_acc: 0.5713
+Epoch 2/10
+7388/7388 [==============================] - 1238s - loss: 0.8637 - acc: 0.5861 - val_loss: 0.8904 - val_acc: 0.5847
+Epoch 3/10
+7388/7388 [==============================] - 1239s - loss: 0.8275 - acc: 0.6137 - val_loss: 0.8537 - val_acc: 0.6005
+Epoch 4/10
+7388/7388 [==============================] - 1239s - loss: 0.7961 - acc: 0.6368 - val_loss: 0.8346 - val_acc: 0.6273
+Epoch 5/10
+7388/7388 [==============================] - 1239s - loss: 0.7678 - acc: 0.6542 - val_loss: 0.8155 - val_acc: 0.6236
+Epoch 6/10
+7388/7388 [==============================] - 1239s - loss: 0.7493 - acc: 0.6657 - val_loss: 0.8324 - val_acc: 0.6309
+Epoch 7/10
+7388/7388 [==============================] - 1240s - loss: 0.7503 - acc: 0.6667 - val_loss: 0.8388 - val_acc: 0.6322
+Epoch 8/10
+7388/7388 [==============================] - 1239s - loss: 0.7784 - acc: 0.6503 - val_loss: 0.9109 - val_acc: 0.5798
+Epoch 9/10
+7388/7388 [==============================] - 1239s - loss: 0.8110 - acc: 0.6297 - val_loss: 0.9343 - val_acc: 0.5554
+Epoch 10/10
+7388/7388 [==============================] - 1239s - loss: 0.8454 - acc: 0.6102 - val_loss: 0.9597 - val_acc: 0.5140
+             precision    recall  f1-score   support
+
+          0       0.68      0.14      0.24       147
+          1       0.57      0.65      0.61       424
+          2       0.41      0.50      0.45       250
+
+avg / total       0.54      0.51      0.49       821
+
+log-loss = 0.960
