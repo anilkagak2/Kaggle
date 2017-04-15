@@ -29,6 +29,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AllConfigurations.txt" />
     <Content Include="VariousExperiments.txt" />
   </ItemGroup>
   <PropertyGroup>

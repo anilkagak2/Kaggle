@@ -14,8 +14,8 @@ import sys
 
 DEVELOPMENT = False
 LOAD_FROM_DISK = False
-#img_rows, img_cols, nchannels = 128, 128, 3
-img_rows, img_cols, nchannels = 60, 40, 3
+img_rows, img_cols, nchannels = 128, 128, 3
+#img_rows, img_cols, nchannels = 60, 40, 3
 
 #img_rows, img_cols, nchannels = 60, 40, 3
 newShape = (img_rows, img_cols)
@@ -161,46 +161,55 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     predicted = clf.predict(X_test)
     print(metrics.classification_report(y_test, predicted))'''
 
+    samplewise_center=True
+    rotation_range=90
+    width_shift_range=0
+    height_shift_range=0
+    shear_range=0
+    zoom_range=0
+    horizontal_flip=True
+    fill_mode='nearest'
+
     datagen = ImageDataGenerator(
-        samplewise_center=True,
-        rotation_range=40,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.1,
-        zoom_range=0.1,
-        horizontal_flip=True,
-        fill_mode='nearest')
+            samplewise_center=samplewise_center,
+            rotation_range=rotation_range,
+            width_shift_range=width_shift_range,
+            height_shift_range=height_shift_range,
+            shear_range=shear_range,
+            zoom_range=zoom_range,
+            horizontal_flip=horizontal_flip,
+            fill_mode=fill_mode)
 
     new_X_train, new_y_train = X_train.copy(), y_train.copy()
     new_X_test, new_y_test = X_test.copy(), y_test.copy()
-    '''epochs = 20
+    epochs = 10
     # here's a more "manual" example
     for e in range(epochs):
         print('Epoch = {0}'.format(e))
         batches = 0
-        batch_size = 4096
+        batch_size = 256
         k_x_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
         for X_batch, Y_batch in datagen.flow(k_x_train, y_train, batch_size=batch_size):
             X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
-            print(X_batch.shape)
-            print(new_X_train.shape)
+            #print(X_batch.shape)
+            #print(new_X_train.shape)
             new_X_train = np.concatenate((new_X_train, X_batch))
             new_y_train = np.concatenate((new_y_train, Y_batch))
-            print("batch = {0}".format(batches))
+            #print("batch = {0}".format(batches))
             batches += 1
-            if batches >= len(X_train) / (2*1024): break
+            if batches >= 2: break
 
-        k_x_test = X_test.reshape(X_test.shape[0], img_rows, img_cols, 3)
+        '''k_x_test = X_test.reshape(X_test.shape[0], img_rows, img_cols, 3)
         for X_batch, Y_batch in datagen.flow(k_x_test, y_test, batch_size=batch_size):
             X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
-            print(X_batch.shape)
+            #print(X_batch.shape)
             print(new_X_train.shape)
             new_X_test = np.concatenate((new_X_test, X_batch))
             new_y_test = np.concatenate((new_y_test, Y_batch))
             print("batch = {0}".format(batches))
             batches += 1
-            if batches >= len(X_test) / (2*1024): break'''
-
+            if batches >= 2: break'''
+    print(new_X_train.shape)
     from time import time
     from sklearn.ensemble import AdaBoostClassifier
     from sklearn.tree import DecisionTreeClassifier
@@ -235,12 +244,17 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         report(random_search.cv_results_)
         sys.exit(1)
 
+    from sklearn.preprocessing import Normalizer, StandardScaler, MinMaxScaler
+    scaler = MinMaxScaler()
+    scaler.fit(new_X_train)
+    new_X_train, new_X_test = scaler.transform(new_X_train), scaler.transform(new_X_test)
+
     #clf = svm.LinearSVC()
     #clf.fit(new_X_train, new_y_train)
     #clf = CalibratedClassifierCV(clf, cv="prefit")
     #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
     clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, bootstrap=False, 
-                                 class_weight='balanced')
+                                 class_weight=None)
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
     print(metrics.classification_report(new_y_test, predicted))
@@ -261,13 +275,13 @@ def writePredictionsToCsv(Data_Dir, predictions, filenames):
             writer.writerow([filenames[i]] + [ str(x) for x in predictions[i]])
 
 def GatherTestDataAndPredict(Data_Dir):
-    print("Prediction..")
+    #print("Prediction..")
     X_test, filenames = get_feature_test_points(os.path.join(Data_Dir, 'test'))
     '''X_test_st2, filenames_st2 = get_feature_test_points(os.path.join(Data_Dir, 'test_stg2'))
     filenames_st2 = [ "test_stg2/" + x for x in filenames_st2 ]
     filenames = filenames + filenames_st2
     X_test = np.concatenate((X_test, X_test_st2), axis=0)'''
-    print(X_test)
+    #print(X_test)
     clf = loadModel(Data_Dir)
     #predictions = clf.predict(X_test)
     predictions = clf.predict_proba(X_test)
@@ -285,7 +299,8 @@ Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
 
-    Stage = ClassifierStage.TrainTest
+    #Stage = ClassifierStage.TrainTest
+    Stage = ClassifierStage.Train
     #Stage = ClassifierStage.Test
 
     if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : GatherTrainTestAndEvaluate(Data_Dir)
