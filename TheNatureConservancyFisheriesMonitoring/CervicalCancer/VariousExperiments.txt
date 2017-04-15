@@ -1,0 +1,122 @@
+-------------------------------------------------------------------------------------
+128x128 RGB image, 1000 estimators, RandomForest, bootstrap=False
+no-data augmentation, using additional images, class_weight=None
+             precision    recall  f1-score   support
+
+          0       0.91      0.46      0.61       147
+          1       0.66      0.93      0.77       424
+          2       0.75      0.46      0.57       250
+
+avg / total       0.73      0.70      0.68       821
+[ 0.109  0.668  0.223]
+
+-------------------------------------------------------------------------------------
+128x128 RGB image, 1000 estimators, RandomForest, bootstrap=True
+no-data augmentation, using additional images, class_weight=None
+             precision    recall  f1-score   support
+
+          0       0.95      0.39      0.56       147
+          1       0.63      0.92      0.75       424
+          2       0.69      0.39      0.50       250
+
+avg / total       0.71      0.67      0.64       821
+[ 0.111  0.722  0.167]
+
+-------------------------------------------------------------------------------------
+128x128 RGB image, 1000 estimators, RandomForest, bootstrap=True
+no-data augmentation, using additional images, class_weight=balanced
+             precision    recall  f1-score   support
+
+          0       0.91      0.41      0.57       147
+          1       0.62      0.93      0.74       424
+          2       0.73      0.33      0.46       250
+
+avg / total       0.70      0.66      0.62       821
+[ 0.152  0.619  0.229]
+
+-------------------------------------------------------------------------------------
+128x128 RGB image, 1000 estimators, RandomForest, bootstrap=False
+no-data augmentation, using additional images, class_weight=balanced
+             precision    recall  f1-score   support
+
+          0       0.92      0.46      0.61       147
+          1       0.63      0.93      0.75       424
+          2       0.75      0.36      0.49       250
+
+avg / total       0.72      0.67      0.65       821
+[ 0.169  0.598  0.233]
+
+---------------------------------------------------------------------------------------
+RandomizedSearchCV took 341.59 seconds for 20 candidates parameter settings.
+Model with rank: 1
+Mean validation score: 0.596 (std: 0.003)
+Parameters: {'criterion': 'entropy', 'max_features': 9, 'min_samples_split': 6, 'bootstrap': False, 'min_samples_leaf': 4, 'max_depth': None}
+
+Model with rank: 2
+Mean validation score: 0.596 (std: 0.010)
+Parameters: {'criterion': 'gini', 'max_features': 6, 'min_samples_split': 6, 'bootstrap': False, 'min_samples_leaf': 3, 'max_depth': None}
+
+Model with rank: 3
+Mean validation score: 0.590 (std: 0.015)
+Parameters: {'max_depth': None, 'max_features': 7, 'min_samples_split': 2, 'min_samples_leaf': 6, 'bootstrap': False, 'criterion': 'gini'}
+---------------------------------------------------------------------------------------
+128x128 RGB image, 1000 estimators, RandomForest, bootstrap=False
+no-data augmentation, using additional images, class_weight=balanced,
+max_features=9, min_samples_split=6, max_depth=None, min_samples_leaf=4
+             precision    recall  f1-score   support
+
+          0       0.95      0.36      0.52       147
+          1       0.62      0.93      0.74       424
+          2       0.71      0.36      0.47       250
+
+avg / total       0.70      0.65      0.62       821
+[ 0.1499381   0.64499762  0.20506429]
+
+---------------------------------------------------------------------------------------
+60x40 RGB image, 1000 estimators, RandomForest, bootstrap=False
+no-data augmentation, using additional images, class_weight=None
+             precision    recall  f1-score   support
+
+          0       0.94      0.50      0.65       147
+          1       0.66      0.92      0.77       424
+          2       0.72      0.44      0.54       250
+
+avg / total       0.73      0.70      0.68       821
+[ 0.134  0.681  0.185]
+
+---------------------------------------------------------------------------------------
+60x40 RGB image, 1000 estimators, RandomForest, bootstrap=True
+no-data augmentation, using additional images, class_weight=None
+             precision    recall  f1-score   support
+
+          0       0.94      0.40      0.56       147
+          1       0.63      0.91      0.74       424
+          2       0.69      0.39      0.50       250
+
+avg / total       0.70      0.66      0.64       821
+[ 0.1    0.708  0.192]
+
+---------------------------------------------------------------------------------------
+60x40 RGB image, 1000 estimators, RandomForest, bootstrap=True
+no-data augmentation, using additional images, class_weight=balanced
+             precision    recall  f1-score   support
+
+          0       0.90      0.41      0.56       147
+          1       0.61      0.92      0.74       424
+          2       0.72      0.32      0.45       250
+
+avg / total       0.69      0.65      0.62       821
+[ 0.129  0.649  0.222]
+
+---------------------------------------------------------------------------------------
+60x40 RGB image, 1000 estimators, RandomForest, bootstrap=False
+no-data augmentation, using additional images, class_weight=balanced
+             precision    recall  f1-score   support
+
+          0       0.92      0.47      0.62       147
+          1       0.63      0.94      0.76       424
+          2       0.78      0.37      0.50       250
+
+avg / total       0.73      0.68      0.65       821
+log-loss = 0.7198219405711266
+[ 0.169  0.597  0.234]

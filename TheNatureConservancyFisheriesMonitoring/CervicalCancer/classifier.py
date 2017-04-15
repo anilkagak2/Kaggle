@@ -14,7 +14,8 @@ import sys
 
 DEVELOPMENT = False
 LOAD_FROM_DISK = False
-img_rows, img_cols, nchannels = 128, 128, 3
+#img_rows, img_cols, nchannels = 128, 128, 3
+img_rows, img_cols, nchannels = 60, 40, 3
 
 #img_rows, img_cols, nchannels = 60, 40, 3
 newShape = (img_rows, img_cols)
@@ -128,6 +129,18 @@ def loadModel(Data_Dir):
         model = pickle.load(fp)
     return model
 
+# Utility function to report best scores
+def report(results, n_top=3):
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            print("Model with rank: {0}".format(i))
+            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+                  results['mean_test_score'][candidate],
+                  results['std_test_score'][candidate]))
+            print("Parameters: {0}".format(results['params'][candidate]))
+            print("")
+
 def GatherTrainTestAndEvaluate(Data_Dir):
     # Process data into feature and label arrays
     train_test_data_file = os.path.join(Data_Dir, 'train_test_data.npz')
@@ -188,18 +201,51 @@ def GatherTrainTestAndEvaluate(Data_Dir):
             batches += 1
             if batches >= len(X_test) / (2*1024): break'''
 
+    from time import time
     from sklearn.ensemble import AdaBoostClassifier
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+    from scipy.stats import randint as sp_randint
+    from sklearn.metrics import log_loss
+
+    TUNE = False
+    if TUNE:
+        print("Will be doing parameter tuning...")
+        clf = RandomForestClassifier(n_estimators=10)
+
+        # specify parameters and distributions to sample from
+        param_dist = {"max_depth": [3, None],
+                      "max_features": sp_randint(1, 11),
+                      "min_samples_split": sp_randint(2, 11),
+                      "min_samples_leaf": sp_randint(1, 11),
+                      "bootstrap": [True, False],
+                      "criterion": ["gini", "entropy"]}
+
+        # run randomized search
+        n_iter_search = 20
+        random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
+                                           n_iter=n_iter_search, n_jobs=-1,
+                                           class_weight='balanced')
+
+        start = time()
+        random_search.fit(new_X_train, new_y_train)
+        print("RandomizedSearchCV took %.2f seconds for %d candidates"
+              " parameter settings." % ((time() - start), n_iter_search))
+        report(random_search.cv_results_)
+        sys.exit(1)
 
     #clf = svm.LinearSVC()
     #clf.fit(new_X_train, new_y_train)
     #clf = CalibratedClassifierCV(clf, cv="prefit")
     #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
-    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1)
+    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, bootstrap=False, 
+                                 class_weight='balanced')
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
     print(metrics.classification_report(new_y_test, predicted))
+    predicted_prob = clf.predict_proba(new_X_test)
+    print("log-loss = {0:.3f}".format(log_loss(new_y_test, predicted_prob)))
 
     # Save the classifier
     saveModel(Data_Dir, clf)
