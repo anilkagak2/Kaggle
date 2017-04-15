@@ -19,7 +19,7 @@ else:
 batch_size = 32
 num_classes = len(classLabels)
 epochs = 10
-data_augmentation = True
+data_augmentation = False
 
 x_train = x_train.reshape((len(x_train), img_rows, img_cols, nchannels))
 x_test = x_test.reshape((len(x_test), img_rows, img_cols, nchannels))
