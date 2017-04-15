@@ -273,3 +273,17 @@ using additional images
 avg / total       0.45      0.55      0.47       821
 
 log-loss = 1.004
+
+---------------------------------------------------------------------------------------
+128x128 RGB image, CNN- 4Conv-1FC
+10 epoch, 7388 batches per epoch, 32 batch size, no data augmentation, 
+using additional images
+         precision    recall  f1-score   support
+
+          0       0.69      0.22      0.34       147
+          1       0.60      0.79      0.68       424
+          2       0.54      0.48      0.51       250
+
+avg / total       0.60      0.59      0.57       821
+
+log-loss = 0.898
