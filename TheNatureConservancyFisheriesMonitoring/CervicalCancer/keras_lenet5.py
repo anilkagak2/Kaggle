@@ -8,13 +8,22 @@ from keras.layers import Conv2D, MaxPooling2D
 import numpy as np
 import sys
 
+train_test_data_file = os.path.join(Data_Dir, 'train_test_data.npz')
+if LOAD_FROM_DISK:
+    x_train, x_test, y_train, y_test = get_features_and_labels(os.path.join(Data_Dir, 'train'))
+    np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+else:
+    npzfile = np.load(train_test_data_file)
+    x_train, x_test, y_train, y_test = npzfile['X_train'], npzfile['X_test'], npzfile['y_train'], npzfile['y_test']
+
 batch_size = 32
-num_classes = 10
-#epochs = 200
-epochs = 50
+num_classes = len(classLabels)
+epochs = 1
 data_augmentation = False
 
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+x_train = x_train.reshape((len(x_train), img_rows, img_cols, nchannels))
+x_test = x_test.reshape((len(x_test), img_rows, img_cols, nchannels))
+
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
@@ -55,11 +64,6 @@ opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
-
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
-x_train /= 255
-x_test /= 255
 
 if not data_augmentation:
     print('Not using data augmentation.')
