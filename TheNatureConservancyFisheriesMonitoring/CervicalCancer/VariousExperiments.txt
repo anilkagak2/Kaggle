@@ -407,3 +407,34 @@ Epoch 00015: early stopping
 avg / total       0.63      0.64      0.63       821
 
 log-loss = 0.832
+---------------------------------------------------------------------------------------
+128x128 RGB image, CNN- 4Conv-1FC
+10 epoch, 7388 batches per epoch, 32 batch size, data augmentation, 
+Training was on data augmentation set and then for some time it was trained on only original set. Then back on the data augmentation  set.
+
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        horizontal_flip=True,  # randomly flip images
+        vertical_flip=True)  # randomly flip images
+
+model check pointing = "weights.19-0.8033.hdf5"
+optimiezer = Mix of AdaDelta, Adam, 
+using additional images
+
+Epoch 2/2
+230/230 [==============================] - 43s - loss: 0.8249 - acc: 0.6011 - categorical_crossentropy: 0.8249 - val_loss: 0.7998 - val_acc: 0.6151 - val_categorical_crossentropy: 0.7998
+             precision    recall  f1-score   support
+
+          0       0.75      0.41      0.53       147
+          1       0.62      0.77      0.69       424
+          2       0.55      0.48      0.51       250
+
+avg / total       0.62      0.62      0.61       821
+
+log-loss = 0.800
