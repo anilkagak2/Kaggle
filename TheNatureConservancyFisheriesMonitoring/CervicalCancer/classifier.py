@@ -11,9 +11,10 @@ from sklearn.ensemble import RandomForestClassifier
 import os
 import cv2
 import sys
+from TestImageFlip import createImageVariations
 
 DEVELOPMENT = False
-LOAD_FROM_DISK = False
+LOAD_FROM_DISK = True
 img_rows, img_cols, nchannels = 128, 128, 3
 #img_rows, img_cols, nchannels = 60, 40, 3
 
@@ -21,6 +22,7 @@ img_rows, img_cols, nchannels = 128, 128, 3
 newShape = (img_rows, img_cols)
 modelName = "model-svc-default.bin"
 predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_x_" + str(img_cols) + ".csv"
+trainTestFilename = 'train_test_data_with_augmentation.npz'
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
 def cleanImage(im):
@@ -75,19 +77,17 @@ def get_features_and_labels(data_dir):
                 img = imread(os.path.join(root, name))
                 #img = imread(os.path.join(root, name), mode='L')
                 try:
-                    img = cleanImage( img )
-                    data.append( img )
+                    img = imresize(img, newShape)
+                    data.append( cleanImage( img ) )
                     labels.append(i)
+
+                    for x in createImageVariations(img, num_per_variation=2):
+                        data.append(cleanImage(x))
+                        labels.append(i)
                 except:
                     print("Got an error in cleaning the image")
                     pass
                 #break
-
-                '''
-                for x in getImageTransformations(img):
-                    data.append(x)
-                    labels.append(i)
-                '''
 
                 cnt += 1
                 if DEVELOPMENT and cnt>=30: break
@@ -143,72 +143,18 @@ def report(results, n_top=3):
 
 def GatherTrainTestAndEvaluate(Data_Dir):
     # Process data into feature and label arrays
-    train_test_data_file = os.path.join(Data_Dir, 'train_test_data.npz')
+    train_test_data_file = os.path.join(Data_Dir, trainTestFilename)
     if LOAD_FROM_DISK:
         X_train, X_test, y_train, y_test = get_features_and_labels(os.path.join(Data_Dir, 'train'))
-        np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+        #np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
     else:
         npzfile = np.load(train_test_data_file)
         X_train, X_test, y_train, y_test = npzfile['X_train'], npzfile['X_test'], npzfile['y_train'], npzfile['y_test']
 
     # Train the classifier
-    #clf = svm.SVC()
-    #clf = svm.LinearSVC()
-    '''total_trees = 500
-    clf = RandomForestClassifier(n_estimators=total_trees, class_weight='balanced', n_jobs=-1)
-    clf.fit(X_train, y_train)
+    new_X_train, new_y_train = X_train, y_train
+    new_X_test, new_y_test = X_test, y_test
 
-    predicted = clf.predict(X_test)
-    print(metrics.classification_report(y_test, predicted))'''
-
-    samplewise_center=True
-    rotation_range=90
-    width_shift_range=0
-    height_shift_range=0
-    shear_range=0
-    zoom_range=0
-    horizontal_flip=True
-    fill_mode='nearest'
-
-    datagen = ImageDataGenerator(
-            samplewise_center=samplewise_center,
-            rotation_range=rotation_range,
-            width_shift_range=width_shift_range,
-            height_shift_range=height_shift_range,
-            shear_range=shear_range,
-            zoom_range=zoom_range,
-            horizontal_flip=horizontal_flip,
-            fill_mode=fill_mode)
-
-    new_X_train, new_y_train = X_train.copy(), y_train.copy()
-    new_X_test, new_y_test = X_test.copy(), y_test.copy()
-    epochs = 10
-    # here's a more "manual" example
-    for e in range(epochs):
-        print('Epoch = {0}'.format(e))
-        batches = 0
-        batch_size = 256
-        k_x_train = X_train.reshape(X_train.shape[0], img_rows, img_cols, 3)
-        for X_batch, Y_batch in datagen.flow(k_x_train, y_train, batch_size=batch_size):
-            X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
-            #print(X_batch.shape)
-            #print(new_X_train.shape)
-            new_X_train = np.concatenate((new_X_train, X_batch))
-            new_y_train = np.concatenate((new_y_train, Y_batch))
-            #print("batch = {0}".format(batches))
-            batches += 1
-            if batches >= 2: break
-
-        '''k_x_test = X_test.reshape(X_test.shape[0], img_rows, img_cols, 3)
-        for X_batch, Y_batch in datagen.flow(k_x_test, y_test, batch_size=batch_size):
-            X_batch = X_batch.reshape(X_batch.shape[0], img_rows*img_cols*3)
-            #print(X_batch.shape)
-            print(new_X_train.shape)
-            new_X_test = np.concatenate((new_X_test, X_batch))
-            new_y_test = np.concatenate((new_y_test, Y_batch))
-            print("batch = {0}".format(batches))
-            batches += 1
-            if batches >= 2: break'''
     print(new_X_train.shape)
     from time import time
     from sklearn.ensemble import AdaBoostClassifier
@@ -245,14 +191,9 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         sys.exit(1)
 
     from sklearn.preprocessing import Normalizer, StandardScaler, MinMaxScaler
-    scaler = MinMaxScaler()
-    scaler.fit(new_X_train)
-    new_X_train, new_X_test = scaler.transform(new_X_train), scaler.transform(new_X_test)
-
-    #clf = svm.LinearSVC()
-    #clf.fit(new_X_train, new_y_train)
-    #clf = CalibratedClassifierCV(clf, cv="prefit")
-    #clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=2), n_estimators=600, learning_rate=1.5, algorithm="SAMME")
+    #scaler = MinMaxScaler()
+    #scaler.fit(new_X_train)
+    #new_X_train, new_X_test = scaler.transform(new_X_train), scaler.transform(new_X_test)
     clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, bootstrap=False, 
                                  class_weight=None)
     clf.fit(new_X_train, new_y_train)
@@ -262,7 +203,12 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     print("log-loss = {0:.3f}".format(log_loss(new_y_test, predicted_prob)))
 
     # Save the classifier
-    saveModel(Data_Dir, clf)
+    '''saveModel(Data_Dir, clf)
+
+    if LOAD_FROM_DISK:
+        print("will be saving to disk now.. not sure if it'll be done")
+        np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)'''
+    return clf
 
 def writePredictionsToCsv(Data_Dir, predictions, filenames):
     global classLabels
@@ -274,7 +220,7 @@ def writePredictionsToCsv(Data_Dir, predictions, filenames):
         for i in range(len(filenames)):
             writer.writerow([filenames[i]] + [ str(x) for x in predictions[i]])
 
-def GatherTestDataAndPredict(Data_Dir):
+def GatherTestDataAndPredict(Data_Dir, clf=None):
     #print("Prediction..")
     X_test, filenames = get_feature_test_points(os.path.join(Data_Dir, 'test'))
     '''X_test_st2, filenames_st2 = get_feature_test_points(os.path.join(Data_Dir, 'test_stg2'))
@@ -282,7 +228,8 @@ def GatherTestDataAndPredict(Data_Dir):
     filenames = filenames + filenames_st2
     X_test = np.concatenate((X_test, X_test_st2), axis=0)'''
     #print(X_test)
-    clf = loadModel(Data_Dir)
+    if clf is None:
+        clf = loadModel(Data_Dir)
     #predictions = clf.predict(X_test)
     predictions = clf.predict_proba(X_test)
     print(predictions[0])
@@ -299,10 +246,10 @@ Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
 
-    #Stage = ClassifierStage.TrainTest
-    Stage = ClassifierStage.Train
+    Stage = ClassifierStage.TrainTest
+    #Stage = ClassifierStage.Train
     #Stage = ClassifierStage.Test
-
-    if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : GatherTrainTestAndEvaluate(Data_Dir)
-    if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir)
+    clf = None
+    if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : clf=GatherTrainTestAndEvaluate(Data_Dir)
+    if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir, clf)
     #experimentOnAnImage(os.path.join(Data_Dir, 'train'))
