@@ -438,3 +438,37 @@ Epoch 2/2
 avg / total       0.62      0.62      0.61       821
 
 log-loss = 0.800
+
+---------------------------------------------------------------------------------------
+128x128 RGB image, CNN- 4Conv-1FC (64(3,3)-64(5,5)-64(3,3)-64(5,5)-512)
+1000 epoch, 7388 batches per epoch, 64 batch size, data augmentation, 
+initial epoch = 500, final epoch=1500
+Training was on data augmentation set and then for some time it was trained on only original set. Then back on the data augmentation  set.
+
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=180,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        horizontal_flip=True,  # randomly flip images
+        vertical_flip=True)  # randomly flip images
+
+model check pointing = "128features\\weights.450-0.8648.hdf5"
+optimizer = opt = keras.optimizers.Adadelta(lr=0.1, decay=1e-3), 
+using additional images
+114/115 [============================>.] - ETA: 0s - loss: 0.8261 - acc: 0.6121 - categorical_crossentropy: 0.8261Epoch 01499: saving model to C:\Users\t-anik\Desktop\personal\KaggleData\cer
+er\keras_lenet5\weights.1499-0.8376.hdf5
+115/115 [==============================] - 56s - loss: 0.8264 - acc: 0.6117 - categorical_crossentropy: 0.8264 - val_loss: 0.8376 - val_acc: 0.6005 - val_categorical_crossentropy: 0.8376
+             precision    recall  f1-score   support
+
+          0       0.61      0.38      0.47       147
+          1       0.63      0.72      0.67       424
+          2       0.54      0.52      0.53       250
+
+avg / total       0.60      0.60      0.59       821
+
+log-loss = 0.838
+kaggle score = 0.84

@@ -81,7 +81,7 @@ def get_features_and_labels(data_dir):
                     data.append( cleanImage( img ) )
                     labels.append(i)
 
-                    for x in createImageVariations(img, num_per_variation=2):
+                    for x in createImageVariations(img, num_per_variation=1):
                         data.append(cleanImage(x))
                         labels.append(i)
                 except:
