@@ -3,6 +3,27 @@ import cv2
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, random_rotation, random_shift, random_zoom, random_shear
 
+def createHistogramNormalizedImage(img):
+    SAVE_DIR = True
+    import cv2
+    variations = [img]
+    print(np.max(img))
+
+    img = cv2.equalizeHist(img)
+    print(np.max(img))
+    variations.append(img)
+    
+    if SAVE_DIR:
+        i=0
+        for img in variations:
+            cv2.imwrite(output_dir + str(i) + ".png", img)
+            i += 6
+        #    cv2.imshow('dst_rt', img)
+        #    cv2.waitKey(0)
+
+    #print(len(variations))
+    return variations
+
 def createImageVariations(img, num_per_variation=2):
     SAVE_DIR = False
     import cv2
@@ -59,10 +80,18 @@ if __name__ == "__main__":
     image_file = "C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\cervical-cancer\\train\\Type_1\\1389.jpg"
     output_dir = "C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\cervical-cancer\\samples\\"
 
-    img = cv2.imread('messi5.jpg')
+    #img = cv2.imread('messi5.jpg')
+    #img = cv2.imread(image_file, 0)
+    img = cv2.imread(image_file)
     print(img.shape)
+    print(img.dtype)
+    img = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
+    print(img.shape)
+    print(img.dtype)
 
-    cv2.imshow('dst_rt', img)
-    cv2.waitKey(0)
+    #cv2.imshow('dst_rt', img)
+    #cv2.waitKey(0)
 
-    createImageVariations(img)
+    createHistogramNormalizedImage(img)
+
+    #createImageVariations(img)

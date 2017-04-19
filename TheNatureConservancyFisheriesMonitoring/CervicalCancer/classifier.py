@@ -14,7 +14,7 @@ import sys
 from TestImageFlip import createImageVariations
 
 DEVELOPMENT = False
-LOAD_FROM_DISK = True
+LOAD_FROM_DISK = False
 img_rows, img_cols, nchannels = 128, 128, 3
 #img_rows, img_cols, nchannels = 60, 40, 3
 
@@ -25,9 +25,13 @@ predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_
 trainTestFilename = 'train_test_data_with_augmentation.npz'
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
-def cleanImage(im):
+def cleanImage(im, HISTOGRAM_NORMALIZE=True):
     global newShape
     im = imresize(im, newShape)
+    if HISTOGRAM_NORMALIZE:
+        im = cv2.cvtColor(im,cv2.COLOR_RGB2GRAY)
+        im = cv2.equalizeHist(im)
+
     im = im.astype(np.float)
     im = im/ 256.0
     im = im.flatten()
@@ -167,7 +171,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     TUNE = False
     if TUNE:
         print("Will be doing parameter tuning...")
-        clf = RandomForestClassifier(n_estimators=10)
+        clf = RandomForestClassifier(n_estimators=500, n_jobs=-1)
 
         # specify parameters and distributions to sample from
         param_dist = {"max_depth": [3, None],
@@ -180,8 +184,7 @@ def GatherTrainTestAndEvaluate(Data_Dir):
         # run randomized search
         n_iter_search = 20
         random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
-                                           n_iter=n_iter_search, n_jobs=-1,
-                                           class_weight='balanced')
+                                           n_iter=n_iter_search, n_jobs=1,scoring='log_loss')
 
         start = time()
         random_search.fit(new_X_train, new_y_train)
@@ -194,8 +197,20 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     #scaler = MinMaxScaler()
     #scaler.fit(new_X_train)
     #new_X_train, new_X_test = scaler.transform(new_X_train), scaler.transform(new_X_test)
-    clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, bootstrap=False, 
-                                 class_weight=None)
+    n_estimators = 1000
+    n_jobs = -1
+    bootstrap = False
+    class_weight = None
+    criterion = 'gini'
+    max_depth = None
+    min_samples_split = 8#2
+    min_samples_leaf = 4#1
+    max_features = 9#'auto'
+
+    clf = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs, bootstrap=bootstrap, 
+                                 class_weight=class_weight, criterion=criterion, max_depth=max_depth,
+                                 min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
+                                 max_features=max_features)
     clf.fit(new_X_train, new_y_train)
     predicted = clf.predict(new_X_test)
     print(metrics.classification_report(new_y_test, predicted))
@@ -203,11 +218,11 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     print("log-loss = {0:.3f}".format(log_loss(new_y_test, predicted_prob)))
 
     # Save the classifier
-    '''saveModel(Data_Dir, clf)
+    saveModel(Data_Dir, clf)
 
     if LOAD_FROM_DISK:
         print("will be saving to disk now.. not sure if it'll be done")
-        np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)'''
+        np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
     return clf
 
 def writePredictionsToCsv(Data_Dir, predictions, filenames):

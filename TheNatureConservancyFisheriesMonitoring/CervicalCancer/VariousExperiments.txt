@@ -485,3 +485,33 @@ avg / total       0.59      0.59      0.58       821
 
 log-loss = 0.831
 kaggle score = 0.84089
+
+======================================================================================
+RandomForests 1000. with histogram equalization. and grayscale images.
+
+TUNE for this setting resulted in the following 
+RandomizedSearchCV took 1282.90 seconds for 20 candidates parameter settings.
+Model with rank: 1
+Mean validation score: -0.836 (std: 0.001)
+Parameters: {'bootstrap': False, 'min_samples_split': 8, 'max_depth': None, 'min_samples_leaf': 4, 'criterion': 'gini', 'max_features': 9}
+
+Model with rank: 2
+Mean validation score: -0.842 (std: 0.001)
+Parameters: {'bootstrap': False, 'min_samples_split': 10, 'max_depth': None, 'min_samples_leaf': 1, 'criterion': 'gini', 'max_features': 4}
+
+Model with rank: 3
+Mean validation score: -0.862 (std: 0.001)
+Parameters: {'bootstrap': False, 'min_samples_split': 3, 'max_depth': None, 'min_samples_leaf': 7, 'criterion': 'entropy', 'max_features': 5}
+
+(59104, 16384)
+             precision    recall  f1-score   support
+
+          0       0.98      0.21      0.35      1189
+          1       0.61      0.95      0.74      3486
+          2       0.75      0.33      0.46      1893
+
+avg / total       0.72      0.64      0.59      6568
+
+log-loss = 0.805
+[ 0.12030476  0.52390476  0.35579048]
+kaggle score = 0.84881
