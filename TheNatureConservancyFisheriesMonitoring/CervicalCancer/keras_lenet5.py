@@ -19,10 +19,10 @@ else:
 
 batch_size = 64
 num_classes = len(classLabels)
-epochs = 1500
+epochs = 1
 data_augmentation = True
 load_model_weights = True
-previous_mode_file = "128features\\weights.450-0.8648.hdf5"
+previous_mode_file = "128features\\weights.2399-0.8308.hdf5"
 
 x_train = x_train.reshape((len(x_train), img_rows, img_cols, nchannels))
 x_test = x_test.reshape((len(x_test), img_rows, img_cols, nchannels))
@@ -111,7 +111,7 @@ else:
                         epochs=epochs,
                         validation_data=(x_test, y_test),
                         callbacks=[keras.callbacks.ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=False, save_weights_only=False, mode='auto', period=50)],
-                        initial_epoch = 500,
+                        initial_epoch = 1,
                         )#callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0.001, patience=10, verbose=1, mode='auto')])
 
 predicted_prob = model.predict(x_test)
