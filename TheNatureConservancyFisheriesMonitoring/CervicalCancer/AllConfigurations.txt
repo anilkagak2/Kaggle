@@ -2,3 +2,4 @@ Additional Data from Kaggle     - Increases the score from 0.92263 to 0.83065
 Using Bootstrap=False           - Increases the score from 0.83065 to 0.79838
 Using 1000 more estimators      - Increases the score from 0.79838 to 0.79612 (Hardly any improvement)
 Adding data augmentation        - ??
+TODO Get 5 variations of the test image and make predictions on them and take a vote.

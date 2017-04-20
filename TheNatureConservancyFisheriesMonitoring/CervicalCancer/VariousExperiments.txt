@@ -603,3 +603,26 @@ log-loss = 0.822
 will be saving to disk now.. not sure if it'll be done
 [ 0.157  0.59   0.253]
 kaggle-score = 0.87344 (Looks line i missed performing cervix segmentation on the test images)
+
+======================================================================
+No Histogram Equalization => Grayscale 128x128 image
+no image resize before cleanup
+Using Cervix Segmentation.
+no data augmentation
+n_estimators = 1000, n_jobs = -1
+bootstrap = False, class_weight = None, criterion = 'gini', max_depth = None
+min_samples_split = 2, min_samples_leaf = 1, max_features = 'auto', num_per_variation=1
+zx,zy = 1,2, rotation_rng = 30, sx, sy= 0.1, 0.1, shear_intensity = 0.5
+(7387, 49152)
+             precision    recall  f1-score   support
+
+          0       0.92      0.39      0.55       147
+          1       0.61      0.91      0.73       424
+          2       0.60      0.29      0.39       250
+
+avg / total       0.66      0.63      0.59       821
+
+log-loss = 0.796
+[ 0.111  0.608  0.281]
+kaggle-score = 0.83195 (Looks line i missed performing cervix segmentation on the test images)
+

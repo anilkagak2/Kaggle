@@ -16,6 +16,7 @@ from cervix_segmentation import getCleanedImageFromRGBImage
 
 DEVELOPMENT = False
 LOAD_FROM_DISK = True
+SAVE_TO_DISK = False
 CREATE_IMAGE_VARIATIONS = False
 NUMBER_PER_VARIATIONS = 1
 img_rows, img_cols, nchannels = 128, 128, 3
@@ -28,7 +29,7 @@ predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_
 trainTestFilename = 'train_test_data_with_augmentation.npz'
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
-def cleanImage(im, HISTOGRAM_NORMALIZE=True, ROI_EXTRACT=True):
+def cleanImage(im, HISTOGRAM_NORMALIZE=False, ROI_EXTRACT=True):
     global newShape
     if ROI_EXTRACT:
         im = getCleanedImageFromRGBImage(im)
@@ -58,11 +59,11 @@ def get_features_and_labels(data_dir):
                 img = imread(os.path.join(root, name))
                 #img = imread(os.path.join(root, name), mode='L')
                 try:
-                    img = imresize(img, newShape)
                     data.append( cleanImage( img ) )
                     labels.append(i)
 
                     if CREATE_IMAGE_VARIATIONS:
+                        #img = imresize(img, newShape)
                         for x in createImageVariations(img, num_per_variation=NUMBER_PER_VARIATIONS):
                             data.append(cleanImage(x))
                             labels.append(i)
@@ -196,11 +197,11 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     print("log-loss = {0:.3f}".format(log_loss(new_y_test, predicted_prob)))
 
     # Save the classifier
-    saveModel(Data_Dir, clf)
-
-    if LOAD_FROM_DISK:
-        print("will be saving to disk now.. not sure if it'll be done")
-        np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+    if SAVE_TO_DISK: 
+        saveModel(Data_Dir, clf)
+        if LOAD_FROM_DISK:
+            print("will be saving to disk now.. not sure if it'll be done")
+            np.savez(train_test_data_file, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
     return clf
 
 def writePredictionsToCsv(Data_Dir, predictions, filenames):
