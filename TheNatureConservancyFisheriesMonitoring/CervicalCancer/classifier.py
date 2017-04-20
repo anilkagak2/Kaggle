@@ -12,9 +12,12 @@ import os
 import cv2
 import sys
 from TestImageFlip import createImageVariations
+from cervix_segmentation import getCleanedImageFromRGBImage
 
 DEVELOPMENT = False
-LOAD_FROM_DISK = False
+LOAD_FROM_DISK = True
+CREATE_IMAGE_VARIATIONS = False
+NUMBER_PER_VARIATIONS = 1
 img_rows, img_cols, nchannels = 128, 128, 3
 #img_rows, img_cols, nchannels = 60, 40, 3
 
@@ -25,8 +28,11 @@ predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_
 trainTestFilename = 'train_test_data_with_augmentation.npz'
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
-def cleanImage(im, HISTOGRAM_NORMALIZE=True):
+def cleanImage(im, HISTOGRAM_NORMALIZE=True, ROI_EXTRACT=True):
     global newShape
+    if ROI_EXTRACT:
+        im = getCleanedImageFromRGBImage(im)
+
     im = imresize(im, newShape)
     if HISTOGRAM_NORMALIZE:
         im = cv2.cvtColor(im,cv2.COLOR_RGB2GRAY)
@@ -37,37 +43,8 @@ def cleanImage(im, HISTOGRAM_NORMALIZE=True):
     im = im.flatten()
     return im
 
-def translateImage(image, dx, dy):
-    trans_mat = np.float32([[1,0,dx],[0,1,dy]])
-    result = cv2.warpAffine(image, trans_mat, image.shape[:2],flags=cv2.INTER_LINEAR)
-    return result
-
-def rotateImage(image, angle):
-    center = tuple(np.array(image.shape)[:2]/2) 
-    rot_mat = cv2.getRotationMatrix2D(center,angle,1.0)
-    result = cv2.warpAffine(image, rot_mat, image.shape[:2],flags=cv2.INTER_LINEAR)
-    return result
-
-def getImageTransformations(im):
-    images = []
-    
-    #angles = [i for i in range(10,360,10)]
-    angles = [30, 60, 90, 150, 180, 270]
-    for angle in angles:
-           images.append(rotateImage(im, angle))
-
-    #dxy = [(0,5), (5,0), (0,10), (10,0), (0,20),(20,0)]
-    dxy = [(0,5), (5,0), (0,10), (10,0)]
-    for dx, dy in dxy:
-        images.append(translateImage(im, dx,dy))
-        images.append(translateImage(im, -dx,-dy))
-
-    images = [ cleanImage(x) for x in images ]
-    
-    return images
-
 def get_features_and_labels(data_dir):
-    global classLabels 
+    global classLabels, CREATE_IMAGE_VARIATIONS, NUMBER_PER_VARIATIONS
     labels = []
     data = []
     for i in range(len(classLabels)):
@@ -85,9 +62,10 @@ def get_features_and_labels(data_dir):
                     data.append( cleanImage( img ) )
                     labels.append(i)
 
-                    for x in createImageVariations(img, num_per_variation=1):
-                        data.append(cleanImage(x))
-                        labels.append(i)
+                    if CREATE_IMAGE_VARIATIONS:
+                        for x in createImageVariations(img, num_per_variation=NUMBER_PER_VARIATIONS):
+                            data.append(cleanImage(x))
+                            labels.append(i)
                 except:
                     print("Got an error in cleaning the image")
                     pass
@@ -203,9 +181,9 @@ def GatherTrainTestAndEvaluate(Data_Dir):
     class_weight = None
     criterion = 'gini'
     max_depth = None
-    min_samples_split = 8#2
-    min_samples_leaf = 4#1
-    max_features = 9#'auto'
+    min_samples_split = 2#8
+    min_samples_leaf = 1#4#
+    max_features = 'auto'#9#
 
     clf = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs, bootstrap=bootstrap, 
                                  class_weight=class_weight, criterion=criterion, max_depth=max_depth,
@@ -260,11 +238,12 @@ class ClassifierStage(Enum):
 Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
 if __name__ == '__main__':
     Data_Dir = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer'
+    Train_Data_Dir = Data_Dir#'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer\\samples'
 
     Stage = ClassifierStage.TrainTest
     #Stage = ClassifierStage.Train
     #Stage = ClassifierStage.Test
     clf = None
-    if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : clf=GatherTrainTestAndEvaluate(Data_Dir)
+    if Stage==ClassifierStage.Train or Stage==ClassifierStage.TrainTest : clf=GatherTrainTestAndEvaluate(Train_Data_Dir)
     if Stage==ClassifierStage.Test or Stage==ClassifierStage.TrainTest : GatherTestDataAndPredict(Data_Dir, clf)
     #experimentOnAnImage(os.path.join(Data_Dir, 'train'))
