@@ -241,3 +241,5 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /TheNatureConservancyFisheriesMonitoring/CervicalCancer/messi5.jpg
+/TheNatureConservancyFisheriesMonitoring/CervicalCancer/CIFAR-10
+/TheNatureConservancyFisheriesMonitoring/CervicalCancer/Models

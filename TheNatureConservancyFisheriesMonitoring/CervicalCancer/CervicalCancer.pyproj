@@ -27,10 +27,22 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classifier.py" />
+    <Compile Include="ConvNet_CIFAR10_DataAug_Distributed.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DummyTest.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="dummy_cntk.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="keras_lenet5.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="keras_vgg16.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PlotAllImages.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TestImageFlip.py">

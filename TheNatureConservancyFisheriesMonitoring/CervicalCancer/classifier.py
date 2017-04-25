@@ -16,7 +16,7 @@ from cervix_segmentation import getCleanedImageFromRGBImage
 
 DEVELOPMENT = False
 LOAD_FROM_DISK = True
-SAVE_TO_DISK = False
+SAVE_TO_DISK = True
 CREATE_IMAGE_VARIATIONS = False
 NUMBER_PER_VARIATIONS = 1
 img_rows, img_cols, nchannels = 128, 128, 3
@@ -29,7 +29,7 @@ predictionsFilename = "predictions-RandomForestClassifier_" + str(img_rows) + "_
 trainTestFilename = 'train_test_data_with_augmentation.npz'
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
-def cleanImage(im, HISTOGRAM_NORMALIZE=False, ROI_EXTRACT=True):
+def cleanImage(im, HISTOGRAM_NORMALIZE=False, ROI_EXTRACT=False):
     global newShape
     if ROI_EXTRACT:
         im = getCleanedImageFromRGBImage(im)
