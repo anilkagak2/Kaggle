@@ -144,12 +144,15 @@ if __name__ == "__main__":
     X_train, X_val, X_test = X_train.astype(np.float32), X_val.astype(np.float32), X_test.astype(np.float32)
     n_train, n_val, n_test = len(X_train), len(X_val), len(X_test)
     print("n_train={0}, n_val={1} and n_test={2}".format(n_train, n_val, n_test))
-    n_features = net.eval(X_train[0])[0].shape[1]
-    print("n_features = {0}".format(n_features))
+    #n_features = net.eval(X_train[0])[0].shape[1]
+    #print("n_features = {0}".format(n_features))
 
-    X_train = evaluate_network(net, X_train, n_train, n_features, batch_size=128)
-    X_val = evaluate_network(net, X_val, n_val, n_features, batch_size=128)
-    X_test = evaluate_network(net, X_test, n_test, n_features, batch_size=128)
+    #X_train = evaluate_network(net, X_train, n_train, n_features, batch_size=128)
+    #X_val = evaluate_network(net, X_val, n_val, n_features, batch_size=128)
+    #X_test = evaluate_network(net, X_test, n_test, n_features, batch_size=128)
+    X_train = X_train.reshape((n_train, -1))
+    X_val = X_val.reshape((n_val, -1))
+    X_test = X_test.reshape((n_test, -1))
 
     n_estimators = 1000
     n_jobs = -1
