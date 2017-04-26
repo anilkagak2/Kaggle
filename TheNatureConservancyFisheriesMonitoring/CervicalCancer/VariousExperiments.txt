@@ -626,3 +626,22 @@ log-loss = 0.796
 [ 0.111  0.608  0.281]
 kaggle-score = 0.83195 (Looks line i missed performing cervix segmentation on the test images)
 
+===============================================================================
+With histogram equalization on RGB 224x224 image.
+no cervix-segmentation
+no data augmentation
+
+n_train=7388, n_val=821 and n_test=512
+n_features = 2048
+             precision    recall  f1-score   support
+
+          0       1.00      0.18      0.30       147
+          1       0.56      0.97      0.71       424
+          2       0.71      0.19      0.30       250
+
+avg / total       0.69      0.59      0.51       821
+
+log-loss = 0.876
+[ 0.184  0.54   0.276]
+
+kaggle score = 0.88

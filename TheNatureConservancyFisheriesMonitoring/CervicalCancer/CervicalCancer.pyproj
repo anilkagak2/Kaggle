@@ -36,6 +36,9 @@
     <Compile Include="dummy_cntk.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="featuresFromCNN.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="keras_lenet5.py">
       <SubType>Code</SubType>
     </Compile>
