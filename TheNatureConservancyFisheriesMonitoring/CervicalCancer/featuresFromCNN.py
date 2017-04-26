@@ -154,7 +154,7 @@ if __name__ == "__main__":
     X_val = X_val.reshape((n_val, -1))
     X_test = X_test.reshape((n_test, -1))
 
-    n_estimators = 1000
+    n_estimators = 4000
     n_jobs = -1
     bootstrap = False
     class_weight = None

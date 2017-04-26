@@ -667,3 +667,23 @@ log-loss = 0.789
 [ 0.123  0.469  0.408]
 
 kaggle score = 0.83
+
+===============================================================================
+With histogram equalization on RGB 224x224 image.
+no cervix-segmentation
+no data augmentation
+random forest = 4000 estimators
+
+n_train=7388, n_val=821 and n_test=512
+             precision    recall  f1-score   support
+
+          0       0.95      0.37      0.53       147
+          1       0.62      0.94      0.74       424
+          2       0.73      0.35      0.47       250
+
+avg / total       0.71      0.66      0.62       821
+
+log-loss = 0.790
+[ 0.1415   0.47375  0.38475]
+
+kaggle score = 0.83
