@@ -139,9 +139,11 @@ if __name__ == "__main__":
         npzfile = np.load(TRAIN_TEST_DATA_FILE)
         X_train, X_val, y_train, y_val = npzfile['X_train'], npzfile['X_val'], npzfile['y_train'], npzfile['y_val']
         X_test, filenames =  npzfile['X_test'],  npzfile['filenames']
+        #X_train, X_val, X_test = X_train.astype(np.float32), X_val.astype(np.float32), X_test.astype(np.float32)
+        #np.savez(TRAIN_TEST_DATA_FILE, X_train=X_train, X_val=X_val, X_test=X_test, y_train=y_train, y_val=y_val, filenames=filenames)
+        #sys.exit(1)
 
     net = get_extractor()
-    X_train, X_val, X_test = X_train.astype(np.float32), X_val.astype(np.float32), X_test.astype(np.float32)
     n_train, n_val, n_test = len(X_train), len(X_val), len(X_test)
     print("n_train={0}, n_val={1} and n_test={2}".format(n_train, n_val, n_test))
     #n_features = net.eval(X_train[0])[0].shape[1]
@@ -154,6 +156,12 @@ if __name__ == "__main__":
     X_val = X_val.reshape((n_val, -1))
     X_test = X_test.reshape((n_test, -1))
 
+    from xgboost import XGBClassifier
+    clf = XGBClassifier(n_estimators=1000, nthread=-1)
+    #clf.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=True, eval_metric='l2', early_stopping_rounds=300)
+    clf.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=True, eval_metric='mlogloss', early_stopping_rounds=300)
+
+    '''
     n_estimators = 4000
     n_jobs = -1
     bootstrap = False
@@ -168,8 +176,9 @@ if __name__ == "__main__":
                                  class_weight=class_weight, criterion=criterion, max_depth=max_depth,
                                  min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
                                  max_features=max_features)
-    clf.fit(X_train, y_train)
+    clf.fit(X_train, y_train)'''
     predicted = clf.predict(X_val)
+    print(predicted[0])
     print(metrics.classification_report(y_val, predicted))
     predicted_prob = clf.predict_proba(X_val)
     print("log-loss = {0:.3f}".format(log_loss(y_val, predicted_prob)))
