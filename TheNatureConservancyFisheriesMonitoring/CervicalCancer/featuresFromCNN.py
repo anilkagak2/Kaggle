@@ -13,18 +13,20 @@ import cntk
 from cntk import load_model
 from cntk.ops import combine
 from cntk.io import MinibatchSource, ImageDeserializer, StreamDef, StreamDefs
+from cervix_segmentation import getCleanedImageFromRGBImage
 #from lightgbm.sklearn import LGBMRegressor
 from cntk.device import set_default_device, gpu
 set_default_device(gpu(0))
 
 DEVELOPMENT = False
-LOAD_FROM_DISK = False
+LOAD_FROM_DISK = True
 classLabels = ['Type_1', 'Type_2', 'Type_3']
 
 def cleanImage(im):
     #cv2.imshow('Color input image', cv2.cvtColor(im, cv2.COLOR_RGB2BGR))
 
     #im = 255.0 / np.amax(im) * im
+    im = getCleanedImageFromRGBImage(im)
     im = cv2.cvtColor(im, cv2.COLOR_RGB2YCR_CB)
     im[:,:,0] = cv2.equalizeHist(im[:,:,0])
     im = cv2.cvtColor(im, cv2.COLOR_YCR_CB2RGB)
@@ -56,8 +58,8 @@ def get_features_and_labels(data_dir):
             cnt = 0
             for name in files:
                 print((os.path.join(root, name)))
-                img = imread(os.path.join(root, name))
                 try:
+                    img = imread(os.path.join(root, name))
                     data.append( cleanImage( img ) )
                     labels.append(i)
                 except:
@@ -123,6 +125,7 @@ if __name__ == "__main__":
     #Put here the path where you downloaded all kaggle data
     DATA_PATH = 'C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer\\'
     TRAIN_PATH = DATA_PATH + 'train\\'
+    #TRAIN_PATH = DATA_PATH + 'nodupe\\train\\'
     TEST_PATH = DATA_PATH + 'test\\'
 
     # Path and variables
@@ -156,13 +159,17 @@ if __name__ == "__main__":
     X_val = X_val.reshape((n_val, -1))
     X_test = X_test.reshape((n_test, -1))
 
+    '''
     from xgboost import XGBClassifier
+    from lightgbm import LGBMClassifier
     clf = XGBClassifier(n_estimators=1000, nthread=-1)
+    #clf = LGBMClassifier(n_estimators=1, nthread=-1)
     #clf.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=True, eval_metric='l2', early_stopping_rounds=300)
+    #clf.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=True, eval_metric='logloss', early_stopping_rounds=300)
     clf.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=True, eval_metric='mlogloss', early_stopping_rounds=300)
 
     '''
-    n_estimators = 4000
+    n_estimators = 1000
     n_jobs = -1
     bootstrap = False
     class_weight = None
@@ -176,7 +183,7 @@ if __name__ == "__main__":
                                  class_weight=class_weight, criterion=criterion, max_depth=max_depth,
                                  min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
                                  max_features=max_features)
-    clf.fit(X_train, y_train)'''
+    clf.fit(X_train, y_train)
     predicted = clf.predict(X_val)
     print(predicted[0])
     print(metrics.classification_report(y_val, predicted))

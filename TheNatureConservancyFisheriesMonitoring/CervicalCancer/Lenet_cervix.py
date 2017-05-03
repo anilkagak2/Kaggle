@@ -21,10 +21,10 @@ abs_path   = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(abs_path, "Models")
 
 # model dimensions
-image_height = 32
-image_width  = 32
+image_height = 224
+image_width  = 224
 num_channels = 3  # RGB
-num_classes  = 10
+num_classes  = 3
 
 # Create a minibatch source.
 def create_image_mb_source(map_file, mean_file, train, total_number_of_samples):
@@ -136,7 +136,7 @@ def train_and_test(network, trainer, train_source, test_source, minibatch_size, 
         mb_size = minibatch_size,
         progress_frequency=epoch_size,
         checkpoint_config = CheckpointConfig(frequency = epoch_size,
-                                             filename = os.path.join(model_path, "ConvNet_CIFAR10_DataAug"),
+                                             filename = os.path.join(model_path, "Cervix_Lenet_224_224"),
                                              restore = restore),
         test_config = TestConfig(source = test_source, mb_size=minibatch_size)
     ).train()
@@ -145,9 +145,8 @@ def train_and_test(network, trainer, train_source, test_source, minibatch_size, 
         stop_profiler()
 
 # Train and evaluate the network.
-def convnet_cifar10_dataaug(train_data, test_data, mean_data, 
-                            minibatch_size=64, epoch_size=50000, 
-                            num_quantization_bits=32, block_size=3200, warm_up=0, max_epochs=2, restore=False, log_to_file=None, 
+def convnet_cifar10_dataaug(train_data, test_data, mean_data, minibatch_size=64, epoch_size=50000, num_quantization_bits=32,
+                            block_size=3200, warm_up=0, max_epochs=2, restore=False, log_to_file=None, 
                             num_mbs_per_log=None, gen_heartbeat=False, profiling=False, tensorboard_logdir=None):
     _cntk_py.set_computation_network_trace_level(0)
 
@@ -181,7 +180,8 @@ def convnet_cifar10_dataaug(train_data, test_data, mean_data,
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    data_path  = os.path.join(abs_path, "..", "..", "..", "DataSets", "CIFAR-10")
+    #data_path  = os.path.join(abs_path, "..", "..", "..", "DataSets", "CIFAR-10")
+    data_path = "C:\\Users\\t-anik\\Desktop\\personal\\KaggleData\\cervical-cancer\\nodupe\\"
 
     parser.add_argument('-datadir', '--datadir', help='Data directory where the CIFAR dataset is located', required=False, default=data_path)
     parser.add_argument('-outputdir', '--outputdir', help='Output directory for checkpoints and models', required=False, default=None)
@@ -189,7 +189,8 @@ if __name__=='__main__':
     parser.add_argument('-tensorboard_logdir', '--tensorboard_logdir', help='Directory where TensorBoard logs should be created', required=False, default=None)
     parser.add_argument('-n', '--num_epochs', help='Total number of epochs to train', type=int, required=False, default='160')
     parser.add_argument('-m', '--minibatch_size', help='Minibatch size', type=int, required=False, default='64')
-    parser.add_argument('-e', '--epoch_size', help='Epoch size', type=int, required=False, default='50000')
+    #parser.add_argument('-e', '--epoch_size', help='Epoch size', type=int, required=False, default='50000')
+    parser.add_argument('-e', '--epoch_size', help='Epoch size', type=int, required=False, default='200')
     parser.add_argument('-q', '--quantized_bits', help='Number of quantized bits used for gradient aggregation', type=int, required=False, default='32')
     parser.add_argument('-a', '--distributed_after', help='Number of samples to train with before running distributed', type=int, required=False, default='0')
     parser.add_argument('-b', '--block_samples', type=int, help="Number of samples per block for block momentum (BM) distributed learner (if 0 BM learner is not used)", required=False, default=None)
@@ -206,12 +207,14 @@ if __name__=='__main__':
     if args['device'] is not None:
         cntk.device.try_set_default_device(cntk.device.gpu(args['device']))
 
+    #cntk.device.try_set_default_device(cntk.device.cpu())
+
     data_path = args['datadir']
 
     if not os.path.isdir(data_path):
         raise RuntimeError("Directory %s does not exist" % data_path)
 
-    mean_data=os.path.join(data_path, 'CIFAR-10_mean.xml')
+    mean_data=os.path.join(data_path, 'cervix_mean.xml')
     train_data=os.path.join(data_path, 'train_map.txt')
     test_data=os.path.join(data_path, 'test_map.txt')
 

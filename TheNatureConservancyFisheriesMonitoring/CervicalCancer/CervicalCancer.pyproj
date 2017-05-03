@@ -27,7 +27,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="classifier.py" />
+    <Compile Include="cntk_vgg16.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ConvNet_CIFAR10_DataAug_Distributed.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="create_train_data.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="create_train_test_map.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DummyTest.py">
@@ -39,13 +48,22 @@
     <Compile Include="featuresFromCNN.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="hogFeatures.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="keras_lenet5.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="keras_vgg16.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Lenet_cervix.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PlotAllImages.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SqueezeNet.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TestImageFlip.py">
