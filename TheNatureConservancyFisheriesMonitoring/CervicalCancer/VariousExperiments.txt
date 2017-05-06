@@ -733,3 +733,53 @@ log-loss = 0.814
 [ 0.04088128  0.70587939  0.25323936]
 
 kaggle score = 0.86
+
+===============================================================================
+With histogram equalization on RGB 224x224 image.
+with cervix-segmentation
+with data augmentation
+
+model = Sequential()
+
+model.add(Conv2D(64, (3, 3), padding='same',
+                 input_shape=X_train.shape[1:], kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Conv2D(64, (5, 5), kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Conv2D(64, (3, 3), padding='same', kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Conv2D(64, (5, 5), kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+model.add(Dense(64, kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(num_classes, kernel_initializer='glorot_uniform'))
+model.add(BatchNormalization())
+model.add(Activation('softmax'))
+model.summary()
+
+461/461 [==============================] - 259s - loss: 0.7223 - acc:
+             precision    recall  f1-score   support
+
+          0       0.71      0.42      0.53       147
+          1       0.66      0.78      0.71       424
+          2       0.58      0.54      0.56       250
+
+avg / total       0.64      0.64      0.63       821
+
+log-loss = 0.808
+[ 0.05989536  0.93345821  0.00664642]
+
+kaggle score = 0.83209

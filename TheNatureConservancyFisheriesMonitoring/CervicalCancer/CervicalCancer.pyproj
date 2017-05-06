@@ -51,6 +51,7 @@
     <Compile Include="hogFeatures.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="keras_lenet52.py" />
     <Compile Include="keras_lenet5.py">
       <SubType>Code</SubType>
     </Compile>
